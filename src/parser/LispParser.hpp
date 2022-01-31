@@ -24,7 +24,8 @@ namespace parsers
     public:
         LispParser();
 
-        std::string parse(std::string data);
+        std::string parseCommand(std::string data);
+        std::string evaluateAtom(std::string data);
     private:
         std::map<std::string, std::function<std::string(std::string,std::string)>> _operations;
         std::map<std::string, std::function<bool(std::string,std::string)>> _comparisons;
@@ -40,6 +41,7 @@ namespace parsers
         static bool lessThanImplementation(std::string basicTypeA, std::string basicTypeB);
 
         ParenthesisLocations getInnermostParenthesis(std::string data);
+        ParenthesisLocations getOutermostParenthesis(std::string data);
         static bool isInteger(std::string str);
     };
 }

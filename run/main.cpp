@@ -12,7 +12,7 @@ int main(void)
 {
     parsers::LispParser parser;
 
-    std::cout << parser.parse("(+ 5 6)") << std::endl;
+    std::cout << parser.parseCommand("(+ 5 (- 6 2))") << std::endl;
 
     return 0;
 }

@@ -26,15 +26,36 @@ LispParser::LispParser()
 
 }
 
-std::string LispParser::parse(std::string data)
+std::string LispParser::parseCommand(std::string data)
 {
-    auto pair = getInnermostParenthesis(data);
+    auto outerPair = getOutermostParenthesis(data);
+    auto innerPair = getInnermostParenthesis(data);
+    const bool singlePair = (outerPair._front == innerPair._front && outerPair._rear == innerPair._rear);
+
+    // If only single pair remaining, evaluate and return
+    if(singlePair)
+    {
+        return evaluateAtom(data);
+    }
+    // Evaluate inner parenthesis and recurse
+    else
+    {
+        std::string atom = data.substr(innerPair._front, (innerPair._rear - innerPair._front + 1));
+        std::string newData = data.replace(innerPair._front, (innerPair._rear - innerPair._front + 1), evaluateAtom(atom));
+        return parseCommand(newData);
+    }
+}
+
+std::string LispParser::evaluateAtom(std::string data)
+{
+    auto pair = getOutermostParenthesis(data);
 
     // No evaluation to be done
     if(pair._front == std::string::npos && pair._rear == std::string::npos)
     {
         return data;
     }
+
     // Has parenthesis
     else if(pair._front != std::string::npos && pair._rear != std::string::npos)
     {
@@ -58,17 +79,13 @@ std::string LispParser::parse(std::string data)
         // Run operation
         std::string result = _operations.at(operation)(operand0, operand1);
 
-        data.replace(pair._front, pair._rear + 1, result);
-
-        return data;
+        return result;
     }
     // Error case
     else
     {
         throw std::runtime_error("[ERROR] Invalid number of parenthesis provided in input: " + data);
     }
-
-    return data;
 }
 
 std::string LispParser::addImplementation(std::string basicTypeA, std::string basicTypeB)
@@ -145,6 +162,11 @@ bool LispParser::lessThanImplementation(std::string basicTypeA, std::string basi
     auto bConverted = std::stof(basicTypeB);
 
     return (aConverted < bConverted);
+}
+
+ParenthesisLocations LispParser::getOutermostParenthesis(std::string data)
+{
+    return { ._front = data.find_first_of("("), ._rear = data.find_last_of(")")};
 }
 
 ParenthesisLocations LispParser::getInnermostParenthesis(std::string data)
