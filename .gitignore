@@ -33,3 +33,8 @@
 
 # CMake Build dir
 build/*
+cmake-build-debug/*
+
+# idea
+.idea/*
+*.iml

@@ -6,6 +6,7 @@
 
 // STL
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/format.hpp>
 #include <iostream>
 
 #define __DEBUG
@@ -41,9 +42,9 @@ std::string LispParser::parseCommand(std::string data)
     else
     {
         std::string atom = data.substr(innerPair._front, (innerPair._rear - innerPair._front + 1));
-        debug(atom);
         std::string newData = data.replace(innerPair._front, (innerPair._rear - innerPair._front + 1), evaluateAtom(atom));
-        debug(newData);
+        debugLog(boost::str(boost::format("Current atom is: %1%") % atom));
+        debugLog(boost::str(boost::format("New data is: %1%") % newData));
         return parseCommand(newData);
     }
 }
@@ -71,19 +72,33 @@ std::string LispParser::evaluateAtom(std::string data)
         // Split into components
         auto ops = getOperatorOperands(substring);
 
+        // Evaluate user variables, if there are any
+        std::vector<std::string> parsedOperands = evaluateUserVars(ops._operands);
+
         // Run operation
         std::string result;
         if(_operations.find(ops._operation) != _operations.end())
-            result = _operations.at(ops._operation)(ops._operands);
-        else
-            throw std::runtime_error("[ERROR] Invalid operation provided in input: " + data);
+        {
+            result = _operations.at(ops._operation)(parsedOperands);
+            return result;
+        }
+        // setq can't be static as it references members
+        else if(ops._operation == "setq")
+        {
+            return setqImplementation(parsedOperands);
+        }
 
-        return result;
+        else
+        {
+            errorLog(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
+            return "";
+        }
     }
     // Error case
     else
     {
-        throw std::runtime_error("[ERROR] Invalid number of parenthesis provided in input: " + data);
+        errorLog(boost::str(boost::format("Invalid number of parenthesis provided in input: %1%")  % data));
+        return "";
     }
 }
 
@@ -194,7 +209,7 @@ std::string LispParser::divideImplementation(std::vector<std::string> operands)
 std::string LispParser::greaterThanImplementation(std::vector<std::string> operands)
 {
     bool conditionTrue = true;
-    auto firstOperand = 0.0f;
+    float firstOperand = 0.0f;
     bool firstSet = false;
 
     for(const auto& it : operands)
@@ -217,7 +232,7 @@ std::string LispParser::greaterThanImplementation(std::vector<std::string> opera
 std::string LispParser::equalToImplementation(std::vector<std::string> operands)
 {
     bool conditionTrue = true;
-    auto firstOperand = 0.0f;
+    float firstOperand = 0.0f;
     bool firstSet = false;
 
     for(const auto& it : operands)
@@ -240,7 +255,7 @@ std::string LispParser::equalToImplementation(std::vector<std::string> operands)
 std::string LispParser::lessThanImplementation(std::vector<std::string> operands)
 {
     bool conditionTrue = true;
-    auto firstOperand = 0.0f;
+    float firstOperand = 0.0f;
     bool firstSet = false;
 
     for(const auto& it : operands)
@@ -258,6 +273,48 @@ std::string LispParser::lessThanImplementation(std::vector<std::string> operands
     }
 
     return conditionTrue ? "T" : "NIL";
+}
+
+std::string LispParser::setqImplementation(std::vector<std::string> operands)
+{
+    if(operands.size() % 2 != 0)
+    {
+        errorLog("Function \'setq\' called with odd number of arguments");
+        return "";
+    }
+    else
+    {
+        int index = 0;
+
+        while(index < operands.size())
+        {
+            // Isolate variable and value
+            std::string varName = operands[index];
+            std::string value = operands[index + 1];
+
+            // Make sure that user isn't inserting a reserved word
+            if(_operations.find(varName) != _operations.end())
+            {
+                errorLog(boost::str(boost::format("Function \'setq\' called with reserved keyword \'%1%\'") % varName));
+                return "";
+            }
+
+            // Place into map
+            if(_userVariables.find(varName) != _userVariables.end())
+            {
+                _userVariables.at(varName) = value;
+            }
+            else
+            {
+                _userVariables.emplace(varName, value);
+            }
+
+            // Increase index
+            index += 2;
+        }
+
+        return "";
+    }
 }
 
 ParenthesisLocations LispParser::getOutermostParenthesis(std::string data)
@@ -296,7 +353,7 @@ bool LispParser::allOperandsAreIntegers(std::vector<std::string> operands)
 
 OperatorOperands LispParser::getOperatorOperands(std::string data)
 {
-    // Assure there are exactly 2 arguments
+    // Assure there are more than 2 arguments
     size_t spaceCount = std::count(data.begin(), data.end(), ' ');
 
     if(spaceCount < 2)
@@ -324,9 +381,40 @@ OperatorOperands LispParser::getOperatorOperands(std::string data)
     }
 }
 
-void LispParser::debug(std::string message)
+std::vector<std::string> LispParser::evaluateUserVars(std::vector<std::string> operands)
+{
+    std::vector<std::string> evaluated = operands;
+
+    for(auto& it : evaluated)
+    {
+        if(_userVariables.find(it) != _userVariables.end())
+        {
+            // Evaluate variable and apply
+            std::string value = _userVariables.at(it);
+
+            if(isInteger(value))
+            {
+                it = std::to_string(static_cast<int>(std::stof(value)));
+            }
+            else
+            {
+                it = std::to_string(std::stof(value));
+            }
+        }
+    }
+
+    return evaluated;
+}
+
+void LispParser::debugLog(std::string message)
 {
     #ifdef __DEBUG
         std::cout << "[PARSER] Debug: " << message << std::endl;
     #endif
+}
+
+void LispParser::errorLog(std::string message)
+{
+    std::cout << "[PARSER] Error: " << message << std::endl;
+    throw std::runtime_error(message);
 }
