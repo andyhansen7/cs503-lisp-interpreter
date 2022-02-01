@@ -8,6 +8,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <iostream>
 
+#define __DEBUG
+
 using namespace parsers;
 
 LispParser::LispParser()
@@ -39,7 +41,9 @@ std::string LispParser::parseCommand(std::string data)
     else
     {
         std::string atom = data.substr(innerPair._front, (innerPair._rear - innerPair._front + 1));
+        debug(atom);
         std::string newData = data.replace(innerPair._front, (innerPair._rear - innerPair._front + 1), evaluateAtom(atom));
+        debug(newData);
         return parseCommand(newData);
     }
 }
@@ -70,7 +74,7 @@ std::string LispParser::evaluateAtom(std::string data)
         // Run operation
         std::string result;
         if(_operations.find(ops._operation) != _operations.end())
-            result = _operations.at(ops._operation)(ops._operands[0], ops._operands[1]);
+            result = _operations.at(ops._operation)(ops._operands);
         else
             throw std::runtime_error("[ERROR] Invalid operation provided in input: " + data);
 
@@ -83,96 +87,212 @@ std::string LispParser::evaluateAtom(std::string data)
     }
 }
 
-std::string LispParser::addImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::addImplementation(std::vector<std::string> operands)
 {
-    bool resultIsInt = isInteger(basicTypeA) && isInteger(basicTypeB);
+    bool resultIsInt = allOperandsAreIntegers(operands);
+    float ret = 0.0f;
+    bool firstSet = false;
 
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            ret = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            ret += converted;
+        }
+    }
 
     if(resultIsInt)
-        return std::to_string(static_cast<int>(aConverted + bConverted));
+        return std::to_string(static_cast<int>(ret));
     else
-        return std::to_string(aConverted + bConverted);
+        return std::to_string(ret);
 }
 
-std::string LispParser::subtractImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::subtractImplementation(std::vector<std::string> operands)
 {
-    bool resultIsInt = isInteger(basicTypeA) && isInteger(basicTypeB);
+    bool resultIsInt = allOperandsAreIntegers(operands);
+    float ret = 0.0f;
+    bool firstSet = false;
 
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            ret = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            ret -= converted;
+        }
+    }
 
     if(resultIsInt)
-        return std::to_string(static_cast<int>(aConverted - bConverted));
+        return std::to_string(static_cast<int>(ret));
     else
-        return std::to_string(aConverted - bConverted);
+        return std::to_string(ret);
 }
 
-std::string LispParser::multiplyImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::multiplyImplementation(std::vector<std::string> operands)
 {
-    bool resultIsInt = isInteger(basicTypeA) && isInteger(basicTypeB);
+    bool resultIsInt = allOperandsAreIntegers(operands);
+    float ret = 0.0f;
+    bool firstSet = false;
 
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            ret = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            ret *= converted;
+        }
+    }
 
     if(resultIsInt)
-        return std::to_string(static_cast<int>(aConverted * bConverted));
+        return std::to_string(static_cast<int>(ret));
     else
-        return std::to_string(aConverted * bConverted);
+        return std::to_string(ret);
 }
 
-std::string LispParser::divideImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::divideImplementation(std::vector<std::string> operands)
 {
-    bool resultIsInt = isInteger(basicTypeA) && isInteger(basicTypeB);
+    bool resultIsInt = allOperandsAreIntegers(operands);
+    float ret = 0.0f;
+    bool firstSet = false;
 
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            ret = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            ret /= converted;
+        }
+    }
 
     if(resultIsInt)
-        return std::to_string(static_cast<int>(aConverted / bConverted));
+        return std::to_string(static_cast<int>(ret));
     else
-        return std::to_string(aConverted / bConverted);
+        return std::to_string(ret);
 }
 
-std::string LispParser::greaterThanImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::greaterThanImplementation(std::vector<std::string> operands)
 {
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    bool conditionTrue = true;
+    auto firstOperand = 0.0f;
+    bool firstSet = false;
 
-    return (aConverted > bConverted) ? "true" : "false";
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            firstOperand = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            conditionTrue &= (firstOperand > converted) ;
+        }
+    }
+
+    return conditionTrue ? "T" : "NIL";
 }
 
-std::string LispParser::equalToImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::equalToImplementation(std::vector<std::string> operands)
 {
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    bool conditionTrue = true;
+    auto firstOperand = 0.0f;
+    bool firstSet = false;
 
-    return (aConverted == bConverted) ? "true" : "false";
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            firstOperand = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            conditionTrue &= (firstOperand == converted) ;
+        }
+    }
+
+    return conditionTrue ? "T" : "NIL";
 }
 
-std::string LispParser::lessThanImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::lessThanImplementation(std::vector<std::string> operands)
 {
-    auto aConverted = std::stof(basicTypeA);
-    auto bConverted = std::stof(basicTypeB);
+    bool conditionTrue = true;
+    auto firstOperand = 0.0f;
+    bool firstSet = false;
 
-    return (aConverted < bConverted) ? "true" : "false";
+    for(const auto& it : operands)
+    {
+        if(!firstSet)
+        {
+            firstOperand = std::stof(it);
+            firstSet = true;
+        }
+        else
+        {
+            auto converted = std::stof(it);
+            conditionTrue &= (firstOperand < converted) ;
+        }
+    }
+
+    return conditionTrue ? "T" : "NIL";
 }
 
 ParenthesisLocations LispParser::getOutermostParenthesis(std::string data)
 {
-    return { ._front = data.find_first_of("("), ._rear = data.find_last_of(")")};
+    std::size_t frontIndex = data.find_first_of("(");
+    std::size_t rearIndex = data.find_last_of(")");
+
+    return {._front = frontIndex, ._rear = rearIndex};
 }
 
 ParenthesisLocations LispParser::getInnermostParenthesis(std::string data)
 {
-    return { ._front = data.find_last_of("("), ._rear = data.find_first_of(")")};
+    std::size_t frontIndex = data.find_last_of("(");
+    std::size_t rearIndex = data.find_first_of(")", frontIndex);
+
+    return {._front = frontIndex, ._rear = rearIndex};
 }
 
 bool LispParser::isInteger(std::string str)
 {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
 }
+
+bool LispParser::allOperandsAreIntegers(std::vector<std::string> operands)
+{
+    bool ret = true;
+
+    for(const auto& it : operands)
+    {
+        ret &= isInteger(it);
+    }
+
+    return ret;
+}
+
 
 OperatorOperands LispParser::getOperatorOperands(std::string data)
 {
@@ -202,4 +322,11 @@ OperatorOperands LispParser::getOperatorOperands(std::string data)
 
         return ops;
     }
+}
+
+void LispParser::debug(std::string message)
+{
+    #ifdef __DEBUG
+        std::cout << "[PARSER] Debug: " << message << std::endl;
+    #endif
 }

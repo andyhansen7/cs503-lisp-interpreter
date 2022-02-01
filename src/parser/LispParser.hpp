@@ -34,22 +34,36 @@ namespace parsers
         std::string parseCommand(std::string data);
         std::string evaluateAtom(std::string data);
     private:
-        std::map<std::string, std::function<std::string(std::string,std::string)>> _operations;
+        std::map<std::string, std::function<std::string(std::vector<std::string>)>> _operations;
 
-        // Implementations
-        static std::string addImplementation(std::string basicTypeA, std::string basicTypeB);
-        static std::string subtractImplementation(std::string basicTypeA, std::string basicTypeB);
-        static std::string multiplyImplementation(std::string basicTypeA, std::string basicTypeB);
-        static std::string divideImplementation(std::string basicTypeA, std::string basicTypeB);
+        // Basic operators
+        static std::string addImplementation(std::vector<std::string> operands);
+        static std::string subtractImplementation(std::vector<std::string> operands);
+        static std::string multiplyImplementation(std::vector<std::string> operands);
+        static std::string divideImplementation(std::vector<std::string> operands);
 
-        static std::string greaterThanImplementation(std::string basicTypeA, std::string basicTypeB);
-        static std::string equalToImplementation(std::string basicTypeA, std::string basicTypeB);
-        static std::string lessThanImplementation(std::string basicTypeA, std::string basicTypeB);
+        // Comparison operators
+        static std::string greaterThanImplementation(std::vector<std::string> operands);
+        static std::string equalToImplementation(std::vector<std::string> operands);
+        static std::string lessThanImplementation(std::vector<std::string> operands);
 
-        ParenthesisLocations getInnermostParenthesis(std::string data);
-        ParenthesisLocations getOutermostParenthesis(std::string data);
+        // Returns indices of innermost (last) pair of parenthesis
+        static ParenthesisLocations getInnermostParenthesis(std::string data);
+
+        // Returns indices of outermost (first) pair of parenthesis
+        static ParenthesisLocations getOutermostParenthesis(std::string data);
+
+        // Returns true if string contains integer - no period
         static bool isInteger(std::string str);
+
+        // Returns true if all items in string are integers
+        static bool allOperandsAreIntegers(std::vector<std::string> operands);
+
+        // Returns the operator to be applied to a string, and a vector of all operands in the string
         static OperatorOperands getOperatorOperands(std::string data);
+
+        // Prints a message to cout if __DEBUG is defined
+        static void debug(std::string message);
     };
 }
 
