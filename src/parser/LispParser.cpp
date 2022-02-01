@@ -15,9 +15,7 @@ LispParser::LispParser()
         { "+", addImplementation},
         { "-", subtractImplementation},
         { "*", multiplyImplementation},
-        { "/", divideImplementation}
-    }),
-    _comparisons({
+        { "/", divideImplementation},
         {">", greaterThanImplementation},
         {"=", equalToImplementation},
         {"<", lessThanImplementation}
@@ -67,17 +65,14 @@ std::string LispParser::evaluateAtom(std::string data)
         boost::replace_all(substring, ")", "");
 
         // Split into components
-        std::size_t index = substring.find(" ");
-        std::string operation = substring.substr(0, index);
-        substring = substring.substr(index + 1);
+        auto ops = getOperatorOperands(substring);
 
-        index = substring.find(" ");
-        std::string operand0 = substring.substr(0, index);
-        substring = substring.substr(index + 1);
-
-        std::string operand1 = substring;
         // Run operation
-        std::string result = _operations.at(operation)(operand0, operand1);
+        std::string result;
+        if(_operations.find(ops._operation) != _operations.end())
+            result = _operations.at(ops._operation)(ops._operands[0], ops._operands[1]);
+        else
+            throw std::runtime_error("[ERROR] Invalid operation provided in input: " + data);
 
         return result;
     }
@@ -140,28 +135,28 @@ std::string LispParser::divideImplementation(std::string basicTypeA, std::string
         return std::to_string(aConverted / bConverted);
 }
 
-bool LispParser::greaterThanImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::greaterThanImplementation(std::string basicTypeA, std::string basicTypeB)
 {
     auto aConverted = std::stof(basicTypeA);
     auto bConverted = std::stof(basicTypeB);
 
-    return (aConverted > bConverted);
+    return (aConverted > bConverted) ? "true" : "false";
 }
 
-bool LispParser::equalToImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::equalToImplementation(std::string basicTypeA, std::string basicTypeB)
 {
     auto aConverted = std::stof(basicTypeA);
     auto bConverted = std::stof(basicTypeB);
 
-    return (aConverted == bConverted);
+    return (aConverted == bConverted) ? "true" : "false";
 }
 
-bool LispParser::lessThanImplementation(std::string basicTypeA, std::string basicTypeB)
+std::string LispParser::lessThanImplementation(std::string basicTypeA, std::string basicTypeB)
 {
     auto aConverted = std::stof(basicTypeA);
     auto bConverted = std::stof(basicTypeB);
 
-    return (aConverted < bConverted);
+    return (aConverted < bConverted) ? "true" : "false";
 }
 
 ParenthesisLocations LispParser::getOutermostParenthesis(std::string data)
@@ -177,4 +172,34 @@ ParenthesisLocations LispParser::getInnermostParenthesis(std::string data)
 bool LispParser::isInteger(std::string str)
 {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+OperatorOperands LispParser::getOperatorOperands(std::string data)
+{
+    // Assure there are exactly 2 arguments
+    size_t spaceCount = std::count(data.begin(), data.end(), ' ');
+
+    if(spaceCount < 2)
+    {
+        throw std::runtime_error("[ERROR] Not enough spaces in input: " + data);
+    }
+    else
+    {
+        OperatorOperands ops;
+        std::size_t index = data.find(" ");
+        ops._operation = data.substr(0, index);
+        std::string substring = data.substr(index + 1);
+
+        index = substring.find(" ");
+        while(index != std::string::npos && index < substring.length())
+        {
+            std::string operand = substring.substr(0, index);
+            substring = substring.substr(index + 1);
+            ops._operands.push_back(operand);
+            index = data.find(" ");
+        }
+        ops._operands.push_back(substring);
+
+        return ops;
+    }
 }

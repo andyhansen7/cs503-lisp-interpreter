@@ -10,6 +10,7 @@
 #include <map>
 #include <functional>
 #include <exception>
+#include <vector>
 
 namespace parsers
 {
@@ -18,6 +19,12 @@ namespace parsers
         std::size_t _front;
         std::size_t _rear;
     } ParenthesisLocations;
+
+    typedef struct
+    {
+        std::string _operation;
+        std::vector<std::string> _operands;
+    } OperatorOperands;
 
     class LispParser
     {
@@ -28,7 +35,6 @@ namespace parsers
         std::string evaluateAtom(std::string data);
     private:
         std::map<std::string, std::function<std::string(std::string,std::string)>> _operations;
-        std::map<std::string, std::function<bool(std::string,std::string)>> _comparisons;
 
         // Implementations
         static std::string addImplementation(std::string basicTypeA, std::string basicTypeB);
@@ -36,13 +42,14 @@ namespace parsers
         static std::string multiplyImplementation(std::string basicTypeA, std::string basicTypeB);
         static std::string divideImplementation(std::string basicTypeA, std::string basicTypeB);
 
-        static bool greaterThanImplementation(std::string basicTypeA, std::string basicTypeB);
-        static bool equalToImplementation(std::string basicTypeA, std::string basicTypeB);
-        static bool lessThanImplementation(std::string basicTypeA, std::string basicTypeB);
+        static std::string greaterThanImplementation(std::string basicTypeA, std::string basicTypeB);
+        static std::string equalToImplementation(std::string basicTypeA, std::string basicTypeB);
+        static std::string lessThanImplementation(std::string basicTypeA, std::string basicTypeB);
 
         ParenthesisLocations getInnermostParenthesis(std::string data);
         ParenthesisLocations getOutermostParenthesis(std::string data);
         static bool isInteger(std::string str);
+        static OperatorOperands getOperatorOperands(std::string data);
     };
 }
 
