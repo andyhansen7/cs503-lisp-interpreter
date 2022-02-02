@@ -24,7 +24,7 @@ LispParser::LispParser()
         {"<", lessThanImplementation}
     })
 {
-
+    
 }
 
 std::string LispParser::parseCommand(std::string data)
@@ -33,8 +33,12 @@ std::string LispParser::parseCommand(std::string data)
     auto innerPair = getInnermostParenthesis(data);
     const bool singlePair = (outerPair._front == innerPair._front && outerPair._rear == innerPair._rear);
 
+    if(outerPair._front == std::string::npos && outerPair._rear == std::string::npos)
+    {
+        return data;
+    }
     // If only single pair remaining, evaluate and return
-    if(singlePair)
+    else if(singlePair)
     {
         return evaluateAtom(data);
     }
@@ -82,10 +86,17 @@ std::string LispParser::evaluateAtom(std::string data)
             result = _operations.at(ops._operation)(parsedOperands);
             return result;
         }
-        // setq can't be static as it references members
-        else if(ops._operation == "setq")
+
+        // setq implementation
+        else if(ops._operation == "setq" || ops._operation == "set")
         {
             return setqImplementation(parsedOperands);
+        }
+
+        // if then implementation
+        else if(ops._operation == "if")
+        {
+            return ifImplementation(parsedOperands);
         }
 
         else
@@ -275,6 +286,36 @@ std::string LispParser::lessThanImplementation(std::vector<std::string> operands
     return conditionTrue ? "T" : "NIL";
 }
 
+std::string LispParser::ifImplementation(std::vector<std::string> operands)
+{
+    if(operands.size() != 3)
+    {
+        errorLog("Function \'if\' called with the wrong number of arguments");
+        return "";
+    }
+    else
+    {
+        // Separate condition and true or false expressions
+        std::string condition = parseCommand(operands[0]);
+        std::string trueCondition = operands[1];
+        std::string falseCondition = operands[2];
+
+        if(condition == "T")
+        {
+            return parseCommand(trueCondition);
+        }
+        else if(condition == "NIL")
+        {
+            return parseCommand(falseCondition);
+        }
+        else
+        {
+            errorLog("Function \'if\' called with condition not returning \'T\' or \'NIL\': " + operands[0]);
+            return "";
+        }
+    }
+}
+
 std::string LispParser::setqImplementation(std::vector<std::string> operands)
 {
     if(operands.size() % 2 != 0)
@@ -284,7 +325,7 @@ std::string LispParser::setqImplementation(std::vector<std::string> operands)
     }
     else
     {
-        int index = 0;
+        size_t index = 0;
 
         while(index < operands.size())
         {
@@ -358,24 +399,35 @@ OperatorOperands LispParser::getOperatorOperands(std::string data)
 
     if(spaceCount < 2)
     {
-        throw std::runtime_error("[ERROR] Not enough spaces in input: " + data);
+        errorLog("Not enough spaces in input: " + data);
+        return {};
     }
     else
     {
         OperatorOperands ops;
-        std::size_t index = data.find(" ");
-        ops._operation = data.substr(0, index);
-        std::string substring = data.substr(index + 1);
+        std::string inputText = data;
+        const std::string delim = " ";
+        std::size_t pos = 0;
+        bool operationSet = false;
 
-        index = substring.find(" ");
-        while(index != std::string::npos && index < substring.length())
+        while((pos = inputText.find(delim)) != std::string::npos)
         {
-            std::string operand = substring.substr(0, index);
-            substring = substring.substr(index + 1);
-            ops._operands.push_back(operand);
-            index = data.find(" ");
+            // Set operation if not yet set
+            if(!operationSet)
+            {
+                ops._operation = inputText.substr(0, pos);
+                inputText.erase(0, pos + delim.length());
+                operationSet = true;
+            }
+            else
+            {
+                ops._operands.push_back(inputText.substr(0, pos));
+                inputText.erase(0, pos + delim.length());
+            }
         }
-        ops._operands.push_back(substring);
+
+        // Grab the last bit
+        ops._operands.push_back(inputText);
 
         return ops;
     }

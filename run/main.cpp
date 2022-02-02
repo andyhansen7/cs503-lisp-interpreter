@@ -12,10 +12,11 @@ int main(void)
 {
     parsers::LispParser parser;
 
-    std::cout << parser.parseCommand("(+ 5 (- 7 2) (/ 10 2))") << std::endl;
-    std::cout << parser.parseCommand("(< 4 (- 7 2) (/ 10 2))") << std::endl;
-    std::cout << parser.parseCommand("(setq x 5)") << std::endl;
-    std::cout << parser.parseCommand("(+ x 4)") << std::endl;
+//    std::cout << parser.parseCommand("(+ 5 (- 7 2) (/ 10 2))") << std::endl;
+//    std::cout << parser.parseCommand("(< 4 (- 7 2) (/ 10 2))") << std::endl;
+//    std::cout << parser.parseCommand("(setq x 5)") << std::endl;
+//    std::cout << parser.parseCommand("(+ x 4)") << std::endl;
+    std::cout << parser.parseCommand("(if (< 7 3) (+ 3 4) (+ 1 2))") << std::endl;
 
     return 0;
 }

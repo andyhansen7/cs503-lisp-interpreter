@@ -61,6 +61,9 @@ namespace parsers
         static std::string equalToImplementation(std::vector<std::string> operands);
         static std::string lessThanImplementation(std::vector<std::string> operands);
 
+        // Other operators
+         std::string ifImplementation(std::vector<std::string> operands);
+
         // Allow users to define
         std::string setqImplementation(std::vector<std::string> operands);
 
