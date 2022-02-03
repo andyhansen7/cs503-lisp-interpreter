@@ -26,8 +26,8 @@ int main(void)
     std::vector<basic_types::Number> x = {a, b, c};
     std::vector<basic_types::List> y;
 
-    std::cout << functions::globalFunctions.at("+")({.numberOperands = x, .listOperands = y})->str() << std::endl;
-    std::cout << functions::globalFunctions.at("-")({.numberOperands = x, .listOperands = y})->str() << std::endl;
+//    std::cout << functions::globalFunctions.at("+")({.numberOperands = x, .listOperands = y})->str() << std::endl;
+//    std::cout << functions::globalFunctions.at("-")({.numberOperands = x, .listOperands = y})->str() << std::endl;
 
     return 0;
 }
