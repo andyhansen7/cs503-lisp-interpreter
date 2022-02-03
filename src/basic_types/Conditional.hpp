@@ -21,9 +21,11 @@ namespace basic_types
         Conditional(const std::string& source);
         Conditional(const Conditional& other);
         Conditional();
+        ~Conditional() = default;
 
         void operator=(const Conditional& other);
         void operator=(const std::string& source);
+        operator bool() const;
 
         void operator<<(std::ostream& stream) override;
         std::string str() override;

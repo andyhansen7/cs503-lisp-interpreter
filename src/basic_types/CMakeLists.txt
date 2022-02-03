@@ -3,6 +3,7 @@ add_library(
 
     Number.cpp
     List.cpp
+    Conditional.cpp
 )
 
 target_link_libraries(

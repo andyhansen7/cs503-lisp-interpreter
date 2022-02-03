@@ -8,6 +8,7 @@
 // src
 #include <functions/FunctionTypes.hpp>
 #include <functions/ArithmeticOperators.hpp>
+#include <functions/ConditionalOperators.hpp>
 #include <basic_types/List.hpp>
 #include <basic_types/Number.hpp>
 
@@ -29,6 +30,11 @@ namespace functions
         {"*", ArithmeticOperations::multiply},
         {"/", ArithmeticOperations::divide}
     };
+
+    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ConditionalParameterType)>> ifThenFunctions =
+            {
+                    {"if", ConditionalOperations::ifThen}
+            };
 }
 
 

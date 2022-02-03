@@ -8,6 +8,7 @@
 // src
 #include <basic_types/List.hpp>
 #include <basic_types/Number.hpp>
+#include <basic_types/Conditional.hpp>
 
 // STl
 #include <vector>
@@ -20,6 +21,13 @@ namespace functions
         std::vector<basic_types::Number> numberOperands;
         std::vector<basic_types::List> listOperands;
     } FunctionParameterType;
+
+    typedef struct conditional_parameter_type
+    {
+        basic_types::Conditional condition;
+        std::string trueExpression;
+        std::string falseExpression;
+    } ConditionalParameterType;
 
     class IReturnType
     {
@@ -36,7 +44,7 @@ namespace functions
         basic_types::Number number;
         std::string str() override
         {
-            return std::to_string(number.get());
+            return number.str();
         }
     };
 
@@ -48,7 +56,19 @@ namespace functions
         basic_types::List list;
         std::string str() override
         {
-            return "";
+            return list.str();
+        }
+    };
+
+    class ConditionalReturnType : public IReturnType
+    {
+    public:
+        ConditionalReturnType();
+        ConditionalReturnType(std::string data) : condition(data) {}
+        basic_types::Conditional condition;
+        std::string str() override
+        {
+            return condition.str();
         }
     };
 
