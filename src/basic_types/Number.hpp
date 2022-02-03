@@ -19,7 +19,9 @@ namespace basic_types
         Number(const std::string& source);
         Number(const int value);
         Number(const double value);
+        Number();
         ~Number() = default;
+
         void operator=(const Number& source);
         void operator=(const int val);
         void operator=(const double val);
@@ -27,6 +29,7 @@ namespace basic_types
 
         double get();
         bool castToInt();
+        std::string str();
 
         static bool isNumber(const std::string& text);
         static bool isInteger(const std::string& text);

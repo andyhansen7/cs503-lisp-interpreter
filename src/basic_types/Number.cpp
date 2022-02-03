@@ -31,6 +31,12 @@ Number::Number(const double value)
     _value = value;
 }
 
+Number::Number()
+    : _value(0.0f), _castToInt(false)
+{
+
+}
+
 void Number::operator=(const Number& source)
 {
     _value = source._value;
@@ -61,6 +67,11 @@ double Number::get()
 bool Number::castToInt()
 {
     return _castToInt;
+}
+
+std::string Number::str()
+{
+    return  std::to_string((_castToInt ? static_cast<int>(_value) : _value));
 }
 
 bool Number::isNumber(const std::string& text)

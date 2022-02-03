@@ -11,23 +11,54 @@
 // STL
 #include <string>
 #include <vector>
+#include <iostream>
+#include <memory>
+#include <error/ErrorHandle.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 namespace basic_types
 {
+    class List;
+
+    class ListItem
+    {
+    public:
+        ListItem(std::unique_ptr<Number> number, std::unique_ptr<List> list, bool itemIsList)
+            : number(std::move(number)), list(std::move(list)), itemIsList(itemIsList) {}
+        ListItem(const ListItem& other)
+            : number(std::make_unique<Number>(*(other.number))), list(std::make_unique<List>(*(other.list))), itemIsList(other.itemIsList) {}
+        ListItem()
+            : number(std::make_unique<Number>()), list(std::make_unique<List>()), itemIsList(false) {}
+        void operator=(const ListItem& other)
+        {
+            number = std::make_unique<Number>(*(other.number));
+            list = std::make_unique<List>(*(other.list));
+            itemIsList = other.itemIsList;
+        }
+
+        std::unique_ptr<Number> number;
+        std::unique_ptr<List> list;
+        bool itemIsList = false;
+    };
+
     class List
     {
     public:
         List(const std::string& source);
+        List();
         ~List() = default;
+
         void operator=(const List& other);
         void operator=(const std::string& source);
+        void operator<<(std::ostream& stream);
+        std::string str();
 
         static bool isList(const std::string& text);
+        static bool allAreLists(std::vector<std::string> sources);
     private:
-        std::vector<Number> _contents;
+        std::vector<ListItem> _contents;
 
-        std::vector<Number> buildList(const std::string& source);
+        std::vector<ListItem> buildList(const std::string& source);
     };
 }
 

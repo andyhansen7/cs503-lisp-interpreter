@@ -14,6 +14,11 @@ List::List(const std::string &source)
     }
 }
 
+List::List()
+{
+
+}
+
 void List::operator=(const List& other)
 {
     _contents = other._contents;
@@ -25,6 +30,27 @@ void List::operator=(const std::string& source)
     {
         _contents = buildList(source);
     };
+}
+
+void List::operator<<(std::ostream& stream)
+{
+    stream << str();
+}
+std::string List::str()
+{
+    std::string ret = "(";
+    for(auto it : _contents)
+    {
+        if(it.itemIsList)
+            ret += it.list->str();
+        else
+            ret += it.number->str();
+
+        ret += " ";
+    }
+    boost::replace_last(ret, " ", "");
+    ret += ")";
+    return ret;
 }
 
 bool List::isList(const std::string& text)
@@ -53,12 +79,24 @@ bool List::isList(const std::string& text)
     return isList;
 }
 
-std::vector<Number> List::buildList(const std::string& source)
+bool List::allAreLists(std::vector<std::string> sources)
+{
+    bool ret = true;
+
+    for(auto it : sources)
+    {
+        ret &= isList(it);
+    }
+
+    return ret;
+}
+
+std::vector<ListItem> List::buildList(const std::string& source)
 {
     std::string inputText = source;
     const std::string delim = " ";
     std::size_t pos = 0;
-    std::vector<Number> numbers;
+    std::vector<ListItem> list;
 
     // Remove initial and end parenthesis
     boost::replace_first(inputText, "(", "");
@@ -66,9 +104,16 @@ std::vector<Number> List::buildList(const std::string& source)
 
     while((pos = inputText.find(delim)) != std::string::npos)
     {
-        numbers.push_back(Number(inputText.substr(0, pos)));
+        std::string newItem = inputText.substr(0, pos);
+        if(isList(newItem))
+            list.push_back({.number = std::make_unique<Number>(), .list = std::make_unique<List>(newItem), .itemIsList = false});
+        else if(Number::isNumber(newItem))
+            list.push_back({.number = std::make_unique<Number>(newItem), .list = std::make_unique<List>(), .itemIsList = false});
+        else
+            error::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
+
         inputText.erase(0, pos + delim.length());
     }
 
-    return numbers;
+    return list;
 }
