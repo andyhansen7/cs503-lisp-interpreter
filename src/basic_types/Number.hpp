@@ -5,6 +5,9 @@
 #ifndef LISP_INTERPRETER_NUMBER_HPP
 #define LISP_INTERPRETER_NUMBER_HPP
 
+// src
+#include <basic_types/IBasicType.hpp>
+
 // STL
 #include <string>
 #include <iostream>
@@ -13,7 +16,7 @@
 
 namespace basic_types
 {
-    class Number
+    class Number : public IBasicType
     {
     public:
         Number(const std::string& source);
@@ -25,11 +28,11 @@ namespace basic_types
         void operator=(const Number& source);
         void operator=(const int val);
         void operator=(const double val);
-        void operator<<(std::ostream& stream);
+        void operator<<(std::ostream& stream) override;
 
         double get();
         bool castToInt();
-        std::string str();
+        std::string str() override;
 
         static bool isNumber(const std::string& text);
         static bool isInteger(const std::string& text);

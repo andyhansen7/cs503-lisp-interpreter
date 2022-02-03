@@ -7,6 +7,7 @@
 
 // src
 #include <basic_types/Number.hpp>
+#include <basic_types/IBasicType.hpp>
 
 // STL
 #include <string>
@@ -41,7 +42,7 @@ namespace basic_types
         bool itemIsList = false;
     };
 
-    class List
+    class List : public IBasicType
     {
     public:
         List(const std::string& source);
@@ -50,8 +51,8 @@ namespace basic_types
 
         void operator=(const List& other);
         void operator=(const std::string& source);
-        void operator<<(std::ostream& stream);
-        std::string str();
+        void operator<<(std::ostream& stream) override;
+        std::string str() override;
 
         static bool isList(const std::string& text);
         static bool allAreLists(std::vector<std::string> sources);
