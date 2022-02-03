@@ -1,3 +1,4 @@
 add_subdirectory(parser)
 add_subdirectory(basic_types)
 add_subdirectory(functions)
+add_subdirectory(error)

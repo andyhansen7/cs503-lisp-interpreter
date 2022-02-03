@@ -24,7 +24,10 @@ namespace functions
      */
     static std::map<std::string, std::function<std::unique_ptr<IReturnType>(FunctionParameterType)>> globalFunctions =
     {
-        {"+", ArithmeticOperations::add}
+        {"+", ArithmeticOperations::add},
+        {"-", ArithmeticOperations::subtract},
+        {"*", ArithmeticOperations::multiply},
+        {"/", ArithmeticOperations::divide}
     };
 }
 
