@@ -8,5 +8,6 @@ target_link_libraries(
     Main
 
     Parsers
-    Atoms
+    Functions
+    BasicTypes
 )

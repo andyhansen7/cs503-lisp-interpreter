@@ -14,24 +14,35 @@
 
 namespace parsers
 {
-    typedef struct
+    typedef struct parenthesisLocations
     {
         std::size_t _front;
         std::size_t _rear;
     } ParenthesisLocations;
 
-    typedef struct
+    typedef struct allParenthesisLocations
+    {
+        std::vector<ParenthesisLocations> _pairs;
+    } AllParenthesisLocations;
+
+    typedef struct operatorOperands
     {
         std::string _operation;
         std::vector<std::string> _operands;
     } OperatorOperands;
 
-    typedef struct
+    typedef struct functionDefinition
     {
         std::string _name;
         std::string _inputs;
         std::vector<std::string> _lines;
     } FunctionDefinition;
+
+    typedef struct evaluationReturn
+    {
+        std::string returnValue = "";
+        bool parameterWasList = false;
+    } EvaluationReturn;
 
     class LispParser
     {
@@ -40,9 +51,13 @@ namespace parsers
 
         std::string parseCommand(std::string data);
         std::string evaluateAtom(std::string data);
+        std::string evaluateList(std::string data);
     private:
         // Map of all functions to their corresponding string names
-        std::map<std::string, std::function<std::string(std::vector<std::string>)>> _operations;
+        std::map<std::string, std::function<std::string(std::vector<std::string>)>> _atomOperations;
+
+        // Same as above, but for functions of lists
+        std::map<std::string, std::function<std::string(std::vector<std::string>)>> _listOperations;
 
         // Map of all variables declared using setq and their corresponding values
         std::map<std::string, std::string> _userVariables;
@@ -62,7 +77,8 @@ namespace parsers
         static std::string lessThanImplementation(std::vector<std::string> operands);
 
         // Other operators
-         std::string ifImplementation(std::vector<std::string> operands);
+        static std::string consImplentation(std::vector<std::string> operands);
+        std::string ifImplementation(std::vector<std::string> operands);
 
         // Allow users to define
         std::string setqImplementation(std::vector<std::string> operands);
@@ -73,11 +89,21 @@ namespace parsers
         // Returns indices of outermost (first) pair of parenthesis
         static ParenthesisLocations getOutermostParenthesis(std::string data);
 
+        static AllParenthesisLocations getAllParenthesisLocations(std::string data);
+        static AllParenthesisLocations orderParenthesisLocations(AllParenthesisLocations locations);
+        static bool compareLocations(const ParenthesisLocations& a, const ParenthesisLocations& b);
+
         // Returns true if string contains integer - no period
         static bool isInteger(std::string str);
 
+        // Returns true if string is a list - period separating each entry
+        bool isList(std::string str);
+
         // Returns true if all items in string are integers
         static bool allOperandsAreIntegers(std::vector<std::string> operands);
+
+        // Returns true if all items in string are lists
+        bool allOperandsAreLists(std::vector<std::string> operands);
 
         // Returns the operator to be applied to a string, and a vector of all operands in the string
         static OperatorOperands getOperatorOperands(std::string data);

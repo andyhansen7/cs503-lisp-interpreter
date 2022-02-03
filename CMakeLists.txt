@@ -8,12 +8,13 @@ set( CMAKE_CXX_STANDARD_REQUIRED ON )
 # Set release flags, should add debug in the future
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 
+# Add all libraries to the include path
+include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+
 # Include GTest testing framework
 include(CTest)
 include(GoogleTest)
 find_package(GTest REQUIRED CONFIG)
-
-include_directories(src)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 

@@ -14,7 +14,7 @@
 using namespace parsers;
 
 LispParser::LispParser()
-    : _operations({
+    : _atomOperations({
         { "+", addImplementation},
         { "-", subtractImplementation},
         { "*", multiplyImplementation},
@@ -22,93 +22,227 @@ LispParser::LispParser()
         {">", greaterThanImplementation},
         {"=", equalToImplementation},
         {"<", lessThanImplementation}
+    }),
+    _listOperations({
+        {"cons", consImplentation}
     })
 {
-    
+
 }
 
 std::string LispParser::parseCommand(std::string data)
+//{
+//    auto outerPair = getOutermostParenthesis(data);
+//    auto innerPair = getInnermostParenthesis(data);
+//    const bool singlePair = (outerPair._front == innerPair._front && outerPair._rear == innerPair._rear);
+//
+//    // If no parenthesis, nothing to evaluate
+//    if(outerPair._front == std::string::npos && outerPair._rear == std::string::npos)
+//    {
+//        return data;
+//    }
+//
+//    // If only single pair remaining, evaluate and return
+//    else if(singlePair)
+//    {
+//        return evaluateAtom(data);
+//    }
+//    // Evaluate inner parenthesis and recurse
+//    else
+//    {
+//        auto currentPairToBeEvaluated = innerPair;
+//
+//        // Get the current atom to work on and replace its value into the data string
+//        std::string atom = data.substr(innerPair._front, (innerPair._rear - innerPair._front + 1));
+//        std::string evaluatedAtom = evaluateAtom(atom);
+//        std::string newData = "";
+//        debugLog(boost::str(boost::format("Current atom is: %1%") % atom));
+//        debugLog(boost::str(boost::format("After evaluation: %1%") % evaluatedAtom));
+//
+//        // True if atom is in most basic form, or a list
+//        if(atom == evaluatedAtom)
+//        {
+//            if(isList(atom))
+//            {
+//                // Find second pair of parentheses and recurse
+//            }
+//        }
+//        else
+//        {
+//            std::string newData = data.replace(innerPair._front, (innerPair._rear - innerPair._front + 1), evaluatedAtom);
+//        }
+//
+//        return parseCommand(newData);
+//    }
+//}
+//
+//std::string LispParser::evaluateAtom(std::string data)
+//{
+//    auto pair = getOutermostParenthesis(data);
+//
+//    // No evaluation to be done if no parenthesis or list
+//    if(pair._front == std::string::npos && pair._rear == std::string::npos)
+//    {
+//        return data;
+//    }
+//
+//    // Has parenthesis
+//    else if(pair._front != std::string::npos && pair._rear != std::string::npos)
+//    {
+//        // Replace with implementation
+//        std::string substring = data.substr(pair._front, (pair._rear - pair._front));
+//
+//        // Split into components
+//        auto ops = getOperatorOperands(substring);
+//
+//        // Evaluate user variables, if there are any
+//        std::vector<std::string> parsedOperands = evaluateUserVars(ops._operands);
+//
+//        // Run operation
+//        std::string result;
+//        if(_atomOperations.find(ops._operation) != _atomOperations.end())
+//        {
+//            result = _atomOperations.at(ops._operation)(parsedOperands);
+//            return result;
+//        }
+//
+//        // setq implementation
+//        else if(ops._operation == "setq" || ops._operation == "set")
+//        {
+//            return setqImplementation(parsedOperands);
+//        }
+//
+//        // if then implementation
+//        else if(ops._operation == "if")
+//        {
+//            return ifImplementation(parsedOperands);
+//        }
+//
+//        else
+//        {
+//            errorLog(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
+//            return "";
+//        }
+//    }
+//    // Error case
+//    else
+//    {
+//        errorLog(boost::str(boost::format("Invalid number of parenthesis provided in input: %1%")  % data));
+//        return "";
+//    }
+//}
 {
     auto outerPair = getOutermostParenthesis(data);
     auto innerPair = getInnermostParenthesis(data);
     const bool singlePair = (outerPair._front == innerPair._front && outerPair._rear == innerPair._rear);
 
+    // If no parenthesis, nothing to evaluate
     if(outerPair._front == std::string::npos && outerPair._rear == std::string::npos)
     {
         return data;
     }
-    // If only single pair remaining, evaluate and return
-    else if(singlePair)
+
+    // Single pair of parenthesis remaining, evaluate expression at face value and return
+    if(singlePair)
     {
-        return evaluateAtom(data);
+        if(isList(data))
+            return data;
+        else
+            return evaluateAtom(data);
     }
-    // Evaluate inner parenthesis and recurse
+
+    // Multiple pairs of parenthesis remaining, got to be a little smarter
     else
     {
-        std::string atom = data.substr(innerPair._front, (innerPair._rear - innerPair._front + 1));
-        std::string newData = data.replace(innerPair._front, (innerPair._rear - innerPair._front + 1), evaluateAtom(atom));
-        debugLog(boost::str(boost::format("Current atom is: %1%") % atom));
-        debugLog(boost::str(boost::format("New data is: %1%") % newData));
-        return parseCommand(newData);
+        // Load parenthesis pairs
+        auto parenthesisPairs = getAllParenthesisLocations(data);
+
+        // Iterate through pairs and evaluate
+        for(std::size_t index = 0; index < parenthesisPairs._pairs.size(); index++)
+        {
+            std::string substring = data.substr(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1));
+
+            // Evaluate list as a list instead of as an atom
+            if(isList(substring))
+            {
+                std::string evaluatedListOperation = evaluateList(data.substr(parenthesisPairs._pairs.at(index + 1)._front, (parenthesisPairs._pairs.at(index + 1)._rear - parenthesisPairs._pairs.at(index + 1)._front + 1)));
+                data.replace(parenthesisPairs._pairs.at(index + 1)._front, (parenthesisPairs._pairs.at(index + 1)._rear - parenthesisPairs._pairs.at(index + 1)._front + 1), evaluatedListOperation);
+                return parseCommand(data);
+            }
+            else
+            {
+                std::string evaluated = evaluateAtom(substring);
+                data.replace(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1), evaluated);
+                return parseCommand(data);
+            }
+        }
+
+        return "";
     }
 }
 
 std::string LispParser::evaluateAtom(std::string data)
 {
+    // Replace outer parenthesis
     auto pair = getOutermostParenthesis(data);
+    std::string cleaned = data.substr(pair._front, (pair._rear - pair._front));
 
-    // No evaluation to be done
-    if(pair._front == std::string::npos && pair._rear == std::string::npos)
+    // Split into components
+    auto ops = getOperatorOperands(cleaned);
+
+    // Evaluate user variables, if there are any
+    std::vector<std::string> parsedOperands = evaluateUserVars(ops._operands);
+
+    // Run operation
+    std::string result;
+    if(_atomOperations.find(ops._operation) != _atomOperations.end())
     {
-        return data;
+        result = _atomOperations.at(ops._operation)(parsedOperands);
+        return result;
     }
 
-    // Has parenthesis
-    else if(pair._front != std::string::npos && pair._rear != std::string::npos)
+    // setq implementation
+    else if(ops._operation == "setq" || ops._operation == "set")
     {
-        // Replace with implementation
-        std::string substring = data.substr(pair._front, (pair._rear - pair._front));
-
-        // Remove parenthesis
-        boost::replace_all(substring, "(", "");
-        boost::replace_all(substring, ")", "");
-
-        // Split into components
-        auto ops = getOperatorOperands(substring);
-
-        // Evaluate user variables, if there are any
-        std::vector<std::string> parsedOperands = evaluateUserVars(ops._operands);
-
-        // Run operation
-        std::string result;
-        if(_operations.find(ops._operation) != _operations.end())
-        {
-            result = _operations.at(ops._operation)(parsedOperands);
-            return result;
-        }
-
-        // setq implementation
-        else if(ops._operation == "setq" || ops._operation == "set")
-        {
-            return setqImplementation(parsedOperands);
-        }
-
-        // if then implementation
-        else if(ops._operation == "if")
-        {
-            return ifImplementation(parsedOperands);
-        }
-
-        else
-        {
-            errorLog(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
-            return "";
-        }
+        return setqImplementation(parsedOperands);
     }
-    // Error case
+
+    // if then implementation
+    else if(ops._operation == "if")
+    {
+        return ifImplementation(parsedOperands);
+    }
+
     else
     {
-        errorLog(boost::str(boost::format("Invalid number of parenthesis provided in input: %1%")  % data));
+        errorLog(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
+        return "";
+    }
+}
+
+std::string LispParser::evaluateList(std::string data)
+{
+    // Replace outer parenthesis
+    auto pair = getOutermostParenthesis(data);
+    std::string cleaned = data.substr(pair._front, (pair._rear - pair._front));
+
+    // Split into components
+    auto ops = getOperatorOperands(cleaned);
+
+    // Evaluate user variables, if there are any
+    std::vector<std::string> parsedOperands = evaluateUserVars(ops._operands);
+
+    // Run operation
+    std::string result;
+    if(_listOperations.find(ops._operation) != _listOperations.end())
+    {
+        result = _atomOperations.at(ops._operation)(parsedOperands);
+        return result;
+    }
+
+    else
+    {
+        errorLog(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
         return "";
     }
 }
@@ -316,6 +450,19 @@ std::string LispParser::ifImplementation(std::vector<std::string> operands)
     }
 }
 
+std::string LispParser::consImplentation(std::vector<std::string> operands)
+{
+    if(operands.size() != 2)
+    {
+        errorLog("Function \'cons\' called with the wrong number of arguments");
+        return "";
+    }
+    else
+    {
+        return boost::str(boost::format("(%1% %2%)") % operands[0] % operands[1]);
+    }
+}
+
 std::string LispParser::setqImplementation(std::vector<std::string> operands)
 {
     if(operands.size() % 2 != 0)
@@ -334,7 +481,7 @@ std::string LispParser::setqImplementation(std::vector<std::string> operands)
             std::string value = operands[index + 1];
 
             // Make sure that user isn't inserting a reserved word
-            if(_operations.find(varName) != _operations.end())
+            if(_atomOperations.find(varName) != _atomOperations.end())
             {
                 errorLog(boost::str(boost::format("Function \'setq\' called with reserved keyword \'%1%\'") % varName));
                 return "";
@@ -354,7 +501,7 @@ std::string LispParser::setqImplementation(std::vector<std::string> operands)
             index += 2;
         }
 
-        return "";
+        return "OK";
     }
 }
 
@@ -374,9 +521,63 @@ ParenthesisLocations LispParser::getInnermostParenthesis(std::string data)
     return {._front = frontIndex, ._rear = rearIndex};
 }
 
+AllParenthesisLocations LispParser::getAllParenthesisLocations(std::string data)
+{
+    std::vector<std::size_t> openings = {};
+    AllParenthesisLocations ret;
+    std::string dataCopy = data;
+
+    // Get all relevant indices
+    for(std::size_t i = 0; i <= dataCopy.size(); i++)
+    {
+        if(dataCopy[i] == '(')
+        {
+            openings.push_back(i);
+        }
+    }
+    std::reverse(openings.begin(), openings.end());
+
+    size_t numberOfPairs = openings.size();
+    for(std::size_t i = 0; i < numberOfPairs; i++)
+    {
+        ParenthesisLocations pair = {._front = 99, ._rear = 99};
+        pair._front = openings.at(i);
+        pair._rear = dataCopy.find_first_of(")", pair._front);
+        dataCopy[pair._rear] = '*';
+        ret._pairs.push_back(pair);
+    }
+
+    return orderParenthesisLocations(ret);
+}
+
+AllParenthesisLocations LispParser::orderParenthesisLocations(AllParenthesisLocations locations)
+{
+    std::vector<ParenthesisLocations> locationsCopy = locations._pairs;
+
+    std::sort(locationsCopy.begin(), locationsCopy.end(), compareLocations);
+
+    return {._pairs = locationsCopy};
+}
+
+bool LispParser::compareLocations(const ParenthesisLocations& a, const ParenthesisLocations& b)
+{
+    return a._front > b._front;
+}
+
 bool LispParser::isInteger(std::string str)
 {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+bool LispParser::isList(std::string str)
+{
+    auto ops = getOperatorOperands(str);
+
+    return !str.empty() &&
+            (_atomOperations.find(ops._operation) == _atomOperations.end()) &&
+            ops._operation != "set" &&
+            ops._operation != "setq" &&
+            ops._operation != "if";
 }
 
 bool LispParser::allOperandsAreIntegers(std::vector<std::string> operands)
@@ -386,6 +587,18 @@ bool LispParser::allOperandsAreIntegers(std::vector<std::string> operands)
     for(const auto& it : operands)
     {
         ret &= isInteger(it);
+    }
+
+    return ret;
+}
+
+bool LispParser::allOperandsAreLists(std::vector<std::string> operands)
+{
+    bool ret = true;
+
+    for(const auto& it : operands)
+    {
+        ret &= isList(it);
     }
 
     return ret;
@@ -409,6 +622,10 @@ OperatorOperands LispParser::getOperatorOperands(std::string data)
         const std::string delim = " ";
         std::size_t pos = 0;
         bool operationSet = false;
+
+        // Remove initial and end parenthesis
+        boost::replace_first(inputText, "(", "");
+        boost::replace_last(inputText, ")", "");
 
         while((pos = inputText.find(delim)) != std::string::npos)
         {
