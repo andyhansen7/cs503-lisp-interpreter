@@ -9,6 +9,7 @@
 #include <Functions/FunctionTypes.hpp>
 #include <Functions/ArithmeticOperators.hpp>
 #include <Functions/ConditionalOperators.hpp>
+#include <Functions/BooleanOperators.hpp>
 #include <BasicTypes/List.hpp>
 #include <BasicTypes/Number.hpp>
 
@@ -29,6 +30,13 @@ namespace functions
         {"-", ArithmeticOperations::subtract},
         {"*", ArithmeticOperations::multiply},
         {"/", ArithmeticOperations::divide}
+    };
+
+    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ArithmeticParameterType)>> booleanFunctions =
+    {
+            {"<", BooleanOperations::lessThan},
+            {"=", BooleanOperations::equalTo},
+            {">", BooleanOperations::greaterThan}
     };
 
     static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ConditionalParameterType)>> conditionalFunctions =

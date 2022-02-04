@@ -64,7 +64,7 @@ namespace functions
     {
     public:
         ConditionalReturnType();
-        ConditionalReturnType(std::string data) : condition(data) {}
+        ConditionalReturnType(basic_types::Conditional conditional) : condition(conditional) {}
         basic_types::Conditional condition;
         std::string str() override
         {

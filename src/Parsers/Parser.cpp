@@ -76,7 +76,6 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     ops.operands = evaluateUserVars(ops.operands);
 
     // Run operation
-    std::string result;
     if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
         debug("Found arithmetic operator " + ops.operation);
@@ -87,6 +86,18 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         auto result = arithmeticFunctions.at(ops.operation)(parameters);
         return {.data = result->str(), .dataWasList = false};
     }
+
+    else if(booleanFunctions.find(ops.operation) != booleanFunctions.end())
+    {
+        debug("Found boolean operator " + ops.operation);
+
+        // Cast string objects to their respective types
+        auto parameters = getArithmeticParameterType(ops);
+
+        auto result = booleanFunctions.at(ops.operation)(parameters);
+        return {.data = result->str(), .dataWasList = false};
+    }
+
     else if(conditionalFunctions.find(ops.operation) != conditionalFunctions.end())
     {
         debug("Found conditional operator " + ops.operation);
