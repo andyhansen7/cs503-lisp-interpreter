@@ -10,6 +10,7 @@
 #include <Functions/ArithmeticOperators.hpp>
 #include <Functions/ConditionalOperators.hpp>
 #include <Functions/BooleanOperators.hpp>
+#include <Functions/PrintOperator.hpp>
 #include <BasicTypes/List.hpp>
 #include <BasicTypes/Number.hpp>
 
@@ -24,7 +25,7 @@ namespace functions
 
     /** Map of all valid functions to all valid identifiers
      */
-    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ArithmeticParameterType)>> arithmeticFunctions =
+    static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ArithmeticParameterType)>> arithmeticFunctions =
     {
         {"+", ArithmeticOperations::add},
         {"-", ArithmeticOperations::subtract},
@@ -32,16 +33,21 @@ namespace functions
         {"/", ArithmeticOperations::divide}
     };
 
-    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ArithmeticParameterType)>> booleanFunctions =
+    static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ArithmeticParameterType)>> booleanFunctions =
     {
-            {"<", BooleanOperations::lessThan},
-            {"=", BooleanOperations::equalTo},
-            {">", BooleanOperations::greaterThan}
+        {"<", BooleanOperations::lessThan},
+        {"=", BooleanOperations::equalTo},
+        {">", BooleanOperations::greaterThan}
     };
 
-    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ConditionalParameterType)>> conditionalFunctions =
+    static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ConditionalParameterType)>> conditionalFunctions =
     {
         {"if", ConditionalOperations::ifThen}
+    };
+
+    static std::map<std::string, std::function<std::shared_ptr<IReturnType>(std::shared_ptr<basic_types::IBasicType>)>> printFunctions =
+    {
+        {"print", PrintOperator::print}
     };
 }
 

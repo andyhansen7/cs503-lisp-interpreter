@@ -4,6 +4,8 @@
 
 #include "List.hpp"
 
+#include <Functions/Functions.hpp>
+
 using namespace basic_types;
 
 List::List(const std::string &source)
@@ -53,6 +55,12 @@ std::string List::str()
     return ret;
 }
 
+int List::size() const
+{
+    return _contents.size();
+}
+
+
 bool List::isList(const std::string& text)
 {
     std::string inputText = text;
@@ -73,8 +81,13 @@ bool List::isList(const std::string& text)
     bool resultIsList = true;
     for(const auto& it : textPieces)
     {
-        bool itValid =  Number::isNumber(it) ||
-                        isList(it);
+        bool itValid =  (functions::arithmeticFunctions.find(it) == functions::arithmeticFunctions.end()) &&
+                        (functions::booleanFunctions.find(it) == functions::booleanFunctions.end()) &&
+                        (functions::printFunctions.find(it) == functions::printFunctions.end()) &&
+                        (functions::conditionalFunctions.find(it) == functions::conditionalFunctions.end()) &&
+                        (Number::isNumber(it) ||
+                         isList(it));
+
 
         resultIsList &= itValid;
     }

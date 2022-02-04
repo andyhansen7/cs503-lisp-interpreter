@@ -22,7 +22,7 @@ namespace functions
     class BooleanOperations
     {
     public:
-        static std::unique_ptr<ConditionalReturnType> lessThan(ArithmeticParameterType params)
+        static std::shared_ptr<ConditionalReturnType> lessThan(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0) error("LessThan not possible with list arguments!");
             if(params.numberOperands.size() != 2) error("LessThan must be provided exactly 2 number arguments!");
@@ -33,16 +33,16 @@ namespace functions
             if(op1 < op2)
             {
                 Conditional cond("T");
-                return std::make_unique<ConditionalReturnType>(cond);
+                return std::make_shared<ConditionalReturnType>(cond);
             }
             else
             {
                 Conditional cond("NIL");
-                return std::make_unique<ConditionalReturnType>(cond);
+                return std::make_shared<ConditionalReturnType>(cond);
             }
         }
 
-        static std::unique_ptr<ConditionalReturnType> equalTo(ArithmeticParameterType params)
+        static std::shared_ptr<ConditionalReturnType> equalTo(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0) error("EqualTo not possible with list arguments!");
             if(params.numberOperands.size() != 2) error("EqualTo must be provided exactly 2 number arguments!");
@@ -53,16 +53,16 @@ namespace functions
             if(op1 == op2)
             {
                 Conditional cond("T");
-                return std::make_unique<ConditionalReturnType>(cond);
+                return std::make_shared<ConditionalReturnType>(cond);
             }
             else
             {
                 Conditional cond("NIL");
-                return std::make_unique<ConditionalReturnType>(cond);
+                return std::make_shared<ConditionalReturnType>(cond);
             }
         }
 
-        static std::unique_ptr<ConditionalReturnType> greaterThan(ArithmeticParameterType params)
+        static std::shared_ptr<ConditionalReturnType> greaterThan(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0) error("GreaterThan not possible with list arguments!");
             if(params.numberOperands.size() != 2) error("GreaterThan must be provided exactly 2 number arguments!");
@@ -73,12 +73,12 @@ namespace functions
             if(op1 > op2)
             {
                 Conditional cond("T");
-                return std::make_unique<ConditionalReturnType>(cond);
+                return std::make_shared<ConditionalReturnType>(cond);
             }
             else
             {
                 Conditional cond("NIL");
-                return std::make_unique<ConditionalReturnType>(cond);
+                return std::make_shared<ConditionalReturnType>(cond);
             }
         }
 

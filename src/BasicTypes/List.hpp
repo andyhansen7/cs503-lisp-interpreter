@@ -55,6 +55,7 @@ namespace basic_types
         void operator<<(std::ostream& stream) override;
         std::string str() override;
 
+        int size() const;
         static bool isList(const std::string& text);
         static bool allAreLists(std::vector<std::string> sources);
     private:

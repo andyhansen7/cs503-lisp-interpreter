@@ -7,6 +7,8 @@
 
 // src
 #include <BasicTypes/IBasicType.hpp>
+#include <BasicTypes/Number.hpp>
+#include <BasicTypes/List.hpp>
 #include <Output/ErrorHandle.hpp>
 
 // STL
@@ -20,6 +22,8 @@ namespace basic_types
     public:
         Conditional(const std::string& source);
         Conditional(const Conditional& other);
+        Conditional(const Number& number);
+        Conditional(const List& list);
         Conditional();
         ~Conditional() = default;
 

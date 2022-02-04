@@ -8,6 +8,9 @@
 // src
 #include <Functions/FunctionTypes.hpp>
 
+// STL
+#include <memory>
+
 using namespace functions;
 
 namespace functions
@@ -15,15 +18,15 @@ namespace functions
     class ConditionalOperations
     {
     public:
-        static std::unique_ptr<IReturnType> ifThen(ConditionalParameterType params)
+        static std::shared_ptr<IReturnType> ifThen(ConditionalParameterType params)
         {
             if(params.condition)
             {
-                return std::make_unique<StringReturnType>(params.trueExpression);
+                return std::make_shared<StringReturnType>(params.trueExpression);
             }
             else
             {
-                return std::make_unique<StringReturnType>(params.falseExpression);
+                return std::make_shared<StringReturnType>(params.falseExpression);
             }
         }
     };

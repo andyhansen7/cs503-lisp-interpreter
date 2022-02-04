@@ -49,7 +49,7 @@ void Number::operator<<(std::ostream& stream)
     stream << _value;
 }
 
-double Number::get()
+double Number::get() const
 {
     return _value;
 }

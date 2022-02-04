@@ -25,7 +25,7 @@ namespace functions
     class ArithmeticOperations
     {
     public:
-        static std::unique_ptr<NumberReturnType> add(ArithmeticParameterType params)
+        static std::shared_ptr<NumberReturnType> add(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0)
             {
@@ -55,10 +55,10 @@ namespace functions
             }
 
             Number num(val);
-            return std::make_unique<NumberReturnType>(num);
+            return std::make_shared<NumberReturnType>(num);
         }
 
-        static std::unique_ptr<NumberReturnType> subtract(ArithmeticParameterType params)
+        static std::shared_ptr<NumberReturnType> subtract(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0) error("Subtraction not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Subtraction not given any number arguments!");
@@ -80,10 +80,10 @@ namespace functions
             }
 
             Number num(val);
-            return std::make_unique<NumberReturnType>(num);
+            return std::make_shared<NumberReturnType>(num);
         }
 
-        static std::unique_ptr<NumberReturnType> multiply(ArithmeticParameterType params)
+        static std::shared_ptr<NumberReturnType> multiply(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0) error("Multiply not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Multiply not given any number arguments!");
@@ -105,10 +105,10 @@ namespace functions
             }
 
             Number num(val);
-            return std::make_unique<NumberReturnType>(num);
+            return std::make_shared<NumberReturnType>(num);
         }
 
-        static std::unique_ptr<NumberReturnType> divide(ArithmeticParameterType params)
+        static std::shared_ptr<NumberReturnType> divide(ArithmeticParameterType params)
         {
             if(params.listOperands.size() != 0) error("Divide not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Divide not given any number arguments!");
@@ -130,7 +130,7 @@ namespace functions
             }
 
             Number num(val);
-            return std::make_unique<NumberReturnType>(num);
+            return std::make_shared<NumberReturnType>(num);
         }
 
     private:

@@ -30,8 +30,7 @@ namespace basic_types
         void operator=(const double val);
         void operator<<(std::ostream& stream) override;
 
-        double get();
-        bool castToInt();
+        double get() const;
         std::string str() override;
 
         static bool isNumber(const std::string& text);

@@ -17,6 +17,16 @@ Conditional::Conditional(const Conditional& other)
 
 }
 
+Conditional::Conditional(const Number& number)
+{
+    _val = (number.get() > 0.0f);
+}
+
+Conditional::Conditional(const List& list)
+{
+    _val = (list.size() > 0);
+}
+
 Conditional::Conditional()
     : _val(false)
 {
@@ -56,7 +66,21 @@ std::string Conditional::str()
 
 bool Conditional::parseConditional(const std::string& source)
 {
-    if(source != "T" && source != "NIL")
+    if(Number::isNumber(source))
+    {
+        return (Number(source).get() > 0.0f);
+    }
+    else if(List::isList(source))
+    {
+        return (List(source).size() > 0);
+    }
+    else if(source == "T" || source == "NIL")
+    {
+        return (source == "T");
+    }
+    else
+    {
         output::ErrorHandle::handleError("Conditional Evaluator", "Argument cannot be parsed as a conditional: " + source);
-    return (source == "T");
+        return false;
+    }
 }

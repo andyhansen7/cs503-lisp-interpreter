@@ -76,6 +76,12 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
     debug("cleaned data to " + cleaned);
 
+    // Check that param is not list
+    if(List::isList(data))
+    {
+        return {.data = data, .dataWasList = true};
+    }
+
     // Split into components
     auto ops = getOperatorOperands(cleaned);
 
@@ -115,6 +121,46 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         auto result = conditionalFunctions.at(ops.operation)(parameters);
         return {.data = result->str(), .dataWasList = false};
     }
+
+    else if(printFunctions.find(ops.operation) != printFunctions.end())
+    {
+        debug("Found print operator " + ops.operation);
+
+        if(ops.operands.size() > 1)
+        {
+            error("Print can only handle a single argument!");
+            return {.data = "", .dataWasList = false};
+        }
+        else if(ops.operands.size() < 1)
+        {
+            error("Print called without any arguments!");
+            return {.data = "", .dataWasList = false};
+        }
+
+        // Create single object to be printed
+        std::shared_ptr<IBasicType> basicType;
+        if(Number::isNumber(ops.operands[0]))
+        {
+            basicType = std::make_shared<Number>(ops.operands[0]);
+        }
+        else if(List::isList(ops.operands[0]))
+        {
+            basicType = std::make_shared<List>(ops.operands[0]);
+        }
+        else if(Conditional::isConditional(ops.operands[0]))
+        {
+            basicType = std::make_shared<Conditional>(ops.operands[0]);
+        }
+        else
+        {
+            error("Could not parse print argument into any basic type");
+            return {.data = "", .dataWasList = false};
+        }
+
+        auto result = printFunctions.at(ops.operation)(basicType);
+        return {.data = result->str(), .dataWasList = false};
+    }
+
     else
     {
         error(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
@@ -127,7 +173,7 @@ OperatorOperands Parser::getOperatorOperands(const std::string& data)
     // Assure there are more than 2 arguments
     size_t spaceCount = std::count(data.begin(), data.end(), ' ');
 
-    if(spaceCount < 2)
+    if(spaceCount < 1)
     {
         error("Not enough spaces in input: " + data);
         return {};
