@@ -59,6 +59,7 @@ namespace parsers
         OperatorOperands getOperatorOperands(const std::string& data);
 
         OperatorParameters getOperatorParameters(OperatorOperands ops);
+        ConditionalParameterType getConditionalParameterType(OperatorOperands ops);
 
         // Evaluate user variables in operands
         std::vector<std::string> evaluateUserVars(std::vector<std::string> operands);

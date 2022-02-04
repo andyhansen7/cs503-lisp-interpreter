@@ -38,6 +38,11 @@ Conditional::operator bool() const
     return _val;
 }
 
+bool Conditional::isConditional(const std::string& source)
+{
+    return (source == "T" || source == "NIL");
+}
+
 
 void Conditional::operator<<(std::ostream& stream)
 {
@@ -52,6 +57,6 @@ std::string Conditional::str()
 bool Conditional::parseConditional(const std::string& source)
 {
     if(source != "T" && source != "NIL")
-        output::ErrorHandle::handleError("Conditional Evaluator", "Argument cannot be parsed as a contitional: " + source);
+        output::ErrorHandle::handleError("Conditional Evaluator", "Argument cannot be parsed as a conditional: " + source);
     return (source == "T");
 }

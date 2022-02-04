@@ -75,18 +75,28 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     // Evaluate user variables, if there are any
     ops.operands = evaluateUserVars(ops.operands);
 
-    // Cast string objects to their respective types
-    auto parameters = getOperatorParameters(ops);
-
     // Run operation
     std::string result;
     if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
         debug("Found arithmetic operator " + ops.operation);
-        auto result = arithmeticFunctions.at(parameters.operation)(parameters.params);
+
+        // Cast string objects to their respective types
+        auto parameters = getOperatorParameters(ops);
+
+        auto result = arithmeticFunctions.at(ops.operation)(parameters.params);
         return {.data = result->str(), .dataWasList = false};
     }
+    else if(conditionalFunctions.find(ops.operation) != conditionalFunctions.end())
+    {
+        debug("Found conditional operator " + ops.operation);
 
+        // Cast string objects to condition and expressions
+        auto conditionalParams = getConditionalParameterType(ops);
+
+        auto result = conditionalFunctions.at(ops.operation)(conditionalParams);
+        return {.data = result->str(), .dataWasList = false};
+    }
     else
     {
         error(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
@@ -162,6 +172,34 @@ OperatorParameters Parser::getOperatorParameters(OperatorOperands ops)
 
     return params;
 }
+
+ConditionalParameterType Parser::getConditionalParameterType(OperatorOperands ops)
+{
+    ConditionalParameterType params;
+
+    if(ops.operands.size() < 3)
+    {
+        error("Conditional operator not given enough arguments!");
+        return params;
+    }
+    else if(ops.operands.size() > 3)
+    {
+        error("Conditional operator given too many arguments!");
+        return params;
+    }
+    else
+    {
+       if(Conditional::isConditional(ops.operands[0]))
+       {
+           params.condition = Conditional(ops.operands[0]);
+       }
+       params.trueExpression = ops.operands[1];
+       params.falseExpression = ops.operands[2];
+
+       return params;
+    }
+}
+
 
 std::vector<std::string> Parser::evaluateUserVars(std::vector<std::string> operands)
 {

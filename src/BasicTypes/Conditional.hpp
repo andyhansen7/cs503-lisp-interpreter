@@ -27,6 +27,8 @@ namespace basic_types
         void operator=(const std::string& source);
         operator bool() const;
 
+        static bool isConditional(const std::string& source);
+
         void operator<<(std::ostream& stream) override;
         std::string str() override;
     private:

@@ -31,10 +31,10 @@ namespace functions
         {"/", ArithmeticOperations::divide}
     };
 
-    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ConditionalParameterType)>> ifThenFunctions =
-            {
-                    {"if", ConditionalOperations::ifThen}
-            };
+    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ConditionalParameterType)>> conditionalFunctions =
+    {
+        {"if", ConditionalOperations::ifThen}
+    };
 }
 
 
