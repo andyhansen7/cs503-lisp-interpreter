@@ -50,6 +50,7 @@ namespace functions
 
             for(auto it : params.numberOperands)
             {
+                debug(it.str());
                 val += it.get();
             }
 

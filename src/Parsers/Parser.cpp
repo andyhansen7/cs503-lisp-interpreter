@@ -16,13 +16,11 @@ Parser::Parser()
 std::string Parser::parse(const std::string& text)
 {
     debug("Starting parse with " + text);
-    std::string data = text;
-    auto outerPair = getOutermostParenthesis(data);
-    auto innerPair = getInnermostParenthesis(data);
-    const bool singlePair = (outerPair._front == innerPair._front && outerPair._rear == innerPair._rear);
+    std::string data = text;;
+    const bool singlePair = hasSinglePair(data);
 
     // If no parenthesis, nothing to evaluate
-    if(outerPair._front == std::string::npos && outerPair._rear == std::string::npos)
+    if(hasNoPairs(data))
     {
         debug("Nothing to evaluate!");
         return data;
@@ -42,10 +40,15 @@ std::string Parser::parse(const std::string& text)
         auto parenthesisPairs = getAllParenthesisLocations(data);
 
         // Iterate through pairs and evaluate
-        for(std::size_t index = 0; index < parenthesisPairs._pairs.size(); index++)
+        for(std::size_t index = 0; index < parenthesisPairs.pairs.size(); index++)
         {
-            std::string substring = data.substr(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1));
-            debug("Current substring is" + substring);
+            if(hasSinglePair(data))
+            {
+                return (evaluate(data)).data;
+            }
+
+            std::string substring = data.substr(parenthesisPairs.pairs.at(index).front, (parenthesisPairs.pairs.at(index).rear - parenthesisPairs.pairs.at(index).front + 1));
+            debug("Current substring is " + substring);
 
             auto evaluated = evaluate(substring);
             if(evaluated.dataWasList)
@@ -54,7 +57,9 @@ std::string Parser::parse(const std::string& text)
                 continue;
             }
 
-            data.replace(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1), evaluated.data);
+            debug("Evaluation returned " + evaluated.data);
+            boost::replace_all(data, substring, evaluated.data);
+            debug("Data is now " + data);
         }
 
         return "";
@@ -67,7 +72,9 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
     // Replace outer parenthesis
     auto pair = getOutermostParenthesis(data);
-    std::string cleaned = data.substr(pair._front, (pair._rear - pair._front));
+    std::string cleaned = data.substr(pair.front, (pair.rear - pair.front + 1));
+
+    debug("cleaned data to " + cleaned);
 
     // Split into components
     auto ops = getOperatorOperands(cleaned);

@@ -5,22 +5,25 @@
 #ifndef LISP_INTERPRETER_PARENTHESISUTILS_HPP
 #define LISP_INTERPRETER_PARENTHESISUTILS_HPP
 
+// src
+#include <Output/Debug.hpp>
+
 namespace parsers
 {
     typedef struct parenthesis_locations
     {
-        std::size_t _front;
-        std::size_t _rear;
+        std::size_t front;
+        std::size_t rear;
     } ParenthesisLocations;
 
     typedef struct all_parenthesis_locations
     {
-        std::vector<ParenthesisLocations> _pairs;
+        std::vector<ParenthesisLocations> pairs;
     } AllParenthesisLocations;
 
     static bool compareLocations(const ParenthesisLocations& a, const ParenthesisLocations& b)
     {
-        return a._front > b._front;
+        return a.front > b.front;
     }
 
     // Returns indices of innermost (last) pair of parenthesis
@@ -29,7 +32,7 @@ namespace parsers
         std::size_t frontIndex = data.find_last_of("(");
         std::size_t rearIndex = data.find_first_of(")", frontIndex);
 
-        return {._front = frontIndex, ._rear = rearIndex};
+        return {.front = frontIndex, .rear = rearIndex};
     }
 
     // Returns indices of outermost (first) pair of parenthesis
@@ -38,16 +41,29 @@ namespace parsers
         std::size_t frontIndex = data.find_first_of("(");
         std::size_t rearIndex = data.find_last_of(")");
 
-        return {._front = frontIndex, ._rear = rearIndex};
+        return {.front = frontIndex, .rear = rearIndex};
+    }
+
+    static bool hasSinglePair(std::string data)
+    {
+        auto outerPair = getOutermostParenthesis(data);
+        auto innerPair = getInnermostParenthesis(data);
+        return (outerPair.front == innerPair.front && outerPair.rear == innerPair.rear);
+    }
+
+    static bool hasNoPairs(std::string data)
+    {
+        auto outerPair = getOutermostParenthesis(data);
+        return (outerPair.front == std::string::npos) && (outerPair.rear == std::string::npos);
     }
 
     static AllParenthesisLocations orderParenthesisLocations(AllParenthesisLocations locations)
     {
-        std::vector<ParenthesisLocations> locationsCopy = locations._pairs;
+        std::vector<ParenthesisLocations> locationsCopy = locations.pairs;
 
         std::sort(locationsCopy.begin(), locationsCopy.end(), compareLocations);
 
-        return {._pairs = locationsCopy};
+        return {.pairs = locationsCopy};
     }
 
     static AllParenthesisLocations getAllParenthesisLocations(std::string data)
@@ -69,11 +85,12 @@ namespace parsers
         size_t numberOfPairs = openings.size();
         for(std::size_t i = 0; i < numberOfPairs; i++)
         {
-            ParenthesisLocations pair = {._front = 99, ._rear = 99};
-            pair._front = openings.at(i);
-            pair._rear = dataCopy.find_first_of(")", pair._front);
-            dataCopy[pair._rear] = '*';
-            ret._pairs.push_back(pair);
+            ParenthesisLocations pair = {.front = 99, .rear = 99};
+            pair.front = openings.at(i);
+            pair.rear = dataCopy.find_first_of(")", pair.front);
+            dataCopy[pair.rear] = '*';
+            output::Debug::debugLog("ParenthesisUtils", "Pair located, open is " + std::to_string(pair.front) + ", close is " + std::to_string(pair.rear));
+            ret.pairs.push_back(pair);
         }
 
         return orderParenthesisLocations(ret);
