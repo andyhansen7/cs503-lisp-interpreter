@@ -9,7 +9,8 @@
 #include <BasicTypes/Number.hpp>
 #include <BasicTypes/List.hpp>
 #include <Functions/FunctionTypes.hpp>
-#include <Error/ErrorHandle.hpp>
+#include <Output/ErrorHandle.hpp>
+#include <Output/Debug.hpp>
 
 // STL
 #include <string>
@@ -26,8 +27,24 @@ namespace functions
     public:
         static std::unique_ptr<NumberReturnType> add(FunctionParameterType params)
         {
-            if(params.listOperands.size() != 0) error("Addition not possible with list arguments!");
-            if(params.numberOperands.size() == 0) error("Addition not given any number arguments!");
+            if(params.listOperands.size() != 0)
+            {
+                debug("About to kill! Given list operands:");
+                for(auto op : params.listOperands)
+                {
+                    debug(op.str());
+                }
+                error("Addition not possible with list arguments!");
+            }
+            if(params.numberOperands.size() == 0)
+            {
+                debug("About to kill! Given number operands:");
+                for(auto op : params.numberOperands)
+                {
+                    debug(op.str());
+                }
+                error("Addition not given any number arguments!");
+            }
 
             double val = 0.0f;
 
@@ -118,7 +135,12 @@ namespace functions
     private:
         static void error(std::string message)
         {
-            return error::ErrorHandle::handleError("ArithmeticOperator", message);
+            return output::ErrorHandle::handleError("ArithmeticOperator", message);
+        }
+
+        static void debug(std::string message)
+        {
+            return output::Debug::debugLog("ArithmeticOperator", message);
         }
     };
 }

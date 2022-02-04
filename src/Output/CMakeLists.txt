@@ -1,5 +1,6 @@
 add_library(
-    Error
+    Output
 
     ErrorHandle.cpp
+    Debug.cpp
 )

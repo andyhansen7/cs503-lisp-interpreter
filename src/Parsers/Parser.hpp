@@ -9,7 +9,8 @@
 #include <BasicTypes/List.hpp>
 #include <BasicTypes/Number.hpp>
 #include <BasicTypes/Conditional.hpp>
-#include <Error/ErrorHandle.hpp>
+#include <Output/ErrorHandle.hpp>
+#include <Output/Debug.hpp>
 #include <Parsers/ParenthesisUtils.hpp>
 #include <Functions/Functions.hpp>
 
@@ -36,6 +37,12 @@ namespace parsers
         FunctionParameterType params;
     } OperatorParameters;
 
+    typedef struct evaluation_return
+    {
+        std::string data = "";
+        bool dataWasList = false;
+    } EvaluationReturn;
+
     class Parser
     {
     public:
@@ -44,10 +51,10 @@ namespace parsers
 
         std::string parse(const std::string& text);
     private:
-        std::map<std::string, std::unique_ptr<IBasicType>> _userVariables;
+        std::map<std::string, std::shared_ptr<IBasicType>> _userVariables;
 
         // Evaluate an object by applying an operation and returning a string
-        std::string evaluate(const std::string& data);
+        EvaluationReturn evaluate(const std::string& data);
 
         OperatorOperands getOperatorOperands(const std::string& data);
 
@@ -58,6 +65,9 @@ namespace parsers
 
         // Error log call
         void error(const std::string& message);
+
+        // Debug log call
+        void debug(const std::string& message);
     };
 }
 

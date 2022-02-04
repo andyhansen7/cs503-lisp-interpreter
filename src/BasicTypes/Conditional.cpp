@@ -52,6 +52,6 @@ std::string Conditional::str()
 bool Conditional::parseConditional(const std::string& source)
 {
     if(source != "T" && source != "NIL")
-        error::ErrorHandle::handleError("Conditional Evaluator", "Argument cannot be parsed as a contitional: " + source);
+        output::ErrorHandle::handleError("Conditional Evaluator", "Argument cannot be parsed as a contitional: " + source);
     return (source == "T");
 }

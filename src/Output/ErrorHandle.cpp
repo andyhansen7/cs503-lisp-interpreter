@@ -4,7 +4,7 @@
 
 #include "ErrorHandle.hpp"
 
-using namespace error;
+using namespace output;
 
 void ErrorHandle::handleError(std::string caller, std::string message)
 {

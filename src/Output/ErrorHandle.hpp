@@ -11,7 +11,7 @@
 #include <boost/format.hpp>
 #include <exception>
 
-namespace error
+namespace output
 {
     class ErrorHandle
     {

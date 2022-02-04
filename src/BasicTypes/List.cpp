@@ -53,7 +53,7 @@ std::string List::str()
     return ret;
 }
 
-bool List::isList(const std::string& text, std::map<std::string, std::unique_ptr<IBasicType>> userVariables)
+bool List::isList(const std::string& text)
 {
     std::string inputText = text;
     const std::string delim = " ";
@@ -70,14 +70,16 @@ bool List::isList(const std::string& text, std::map<std::string, std::unique_ptr
         inputText.erase(0, pos + delim.length());
     }
 
-    bool isList = true;
+    bool resultIsList = true;
     for(const auto& it : textPieces)
     {
-        bool itValid = Number::isNumber(it) || (userVariables.find(it) != userVariables.end()) || isList(it);
-        isList &= itValid;
+        bool itValid =  Number::isNumber(it) ||
+                        isList(it);
+
+        resultIsList &= itValid;
     }
 
-    return isList;
+    return resultIsList;
 }
 
 bool List::allAreLists(std::vector<std::string> sources)
@@ -111,7 +113,7 @@ std::vector<ListItem> List::buildList(const std::string& source)
         else if(isList(newItem))
             list.push_back({.number = std::make_unique<Number>(), .list = std::make_unique<List>(newItem), .itemIsList = true});
         else
-            error::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
+            output::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
 
         inputText.erase(0, pos + delim.length());
     }

@@ -3,3 +3,11 @@ add_library(
 
     Parser.cpp
 )
+
+target_link_libraries(
+    Parsers
+
+    Functions
+    BasicTypes
+    Output
+)

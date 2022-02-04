@@ -14,7 +14,7 @@ int main(void)
 {
     parsers::Parser p;
 
-//    std::cout << p.parse("(+ 1 2 3)") << std::endl;
+    std::cout << p.parse("(+ 1 2 3)") << std::endl;
     std::cout << Number("1234.5").str() << std::endl;
     std::cout << List("(1 2 3 4 5").str() << std::endl;
 

@@ -15,6 +15,7 @@ Parser::Parser()
 
 std::string Parser::parse(const std::string& text)
 {
+    debug("Starting parse with " + text);
     std::string data = text;
     auto outerPair = getOutermostParenthesis(data);
     auto innerPair = getInnermostParenthesis(data);
@@ -23,20 +24,15 @@ std::string Parser::parse(const std::string& text)
     // If no parenthesis, nothing to evaluate
     if(outerPair._front == std::string::npos && outerPair._rear == std::string::npos)
     {
+        debug("Nothing to evaluate!");
         return data;
     }
 
     // Single pair of parenthesis remaining, evaluate expression at face value and return
     if(singlePair)
     {
-        if(List::isList(data))
-        {
-            return data;
-        }
-        else
-        {
-            return evaluate(data);
-        }
+        debug("Single atom object, evaluating and returning...");
+        return (evaluate(data)).data;
     }
 
     // Multiple pairs of parenthesis remaining, got to be a little smarter
@@ -49,26 +45,26 @@ std::string Parser::parse(const std::string& text)
         for(std::size_t index = 0; index < parenthesisPairs._pairs.size(); index++)
         {
             std::string substring = data.substr(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1));
+            debug("Current substring is" + substring);
 
-            if(List::isList(substring))
+            auto evaluated = evaluate(substring);
+            if(evaluated.dataWasList)
             {
+                debug("Substring is list! Moving onto next loop");
                 continue;
             }
-            else
-            {
-                std::string evaluated = evaluate(substring);
-                data.replace(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1), evaluated);
-                return parse(data);
-            }
 
+            data.replace(parenthesisPairs._pairs.at(index)._front, (parenthesisPairs._pairs.at(index)._rear - parenthesisPairs._pairs.at(index)._front + 1), evaluated.data);
         }
 
         return "";
     }
 }
 
-std::string Parser::evaluate(const std::string& data)
+EvaluationReturn Parser::evaluate(const std::string& data)
 {
+    debug("evalutate() called with " + data);
+
     // Replace outer parenthesis
     auto pair = getOutermostParenthesis(data);
     std::string cleaned = data.substr(pair._front, (pair._rear - pair._front));
@@ -86,14 +82,15 @@ std::string Parser::evaluate(const std::string& data)
     std::string result;
     if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
+        debug("Found arithmetic operator " + ops.operation);
         auto result = arithmeticFunctions.at(parameters.operation)(parameters.params);
-        return result->str();
+        return {.data = result->str(), .dataWasList = false};
     }
 
     else
     {
         error(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
-        return "";
+        return {.data = "", .dataWasList = false};
     }
 }
 
@@ -149,13 +146,13 @@ OperatorParameters Parser::getOperatorParameters(OperatorOperands ops)
 
     for(auto& it : ops.operands)
     {
-        if(List::isList(it))
-        {
-            params.params.listOperands.push_back(List(it));
-        }
-        else if(Number::isNumber(it))
+        if(Number::isNumber(it))
         {
             params.params.numberOperands.push_back(Number(it));
+        }
+        else if(List::isList(it))
+        {
+            params.params.listOperands.push_back(List(it));
         }
         else
         {
@@ -184,5 +181,10 @@ std::vector<std::string> Parser::evaluateUserVars(std::vector<std::string> opera
 
 void Parser::error(const std::string& message)
 {
-    return error::ErrorHandle::handleError("Parser", message);
+    output::ErrorHandle::handleError("Parser", message);
+}
+
+void Parser::debug(const std::string& message)
+{
+     output::Debug::debugLog("Parser", message);
 }

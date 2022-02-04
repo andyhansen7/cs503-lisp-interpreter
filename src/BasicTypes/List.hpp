@@ -8,7 +8,7 @@
 // src
 #include <BasicTypes/Number.hpp>
 #include <BasicTypes/IBasicType.hpp>
-#include <Error/ErrorHandle.hpp>
+#include <Output/ErrorHandle.hpp>
 
 // STL
 #include <string>
@@ -55,7 +55,7 @@ namespace basic_types
         void operator<<(std::ostream& stream) override;
         std::string str() override;
 
-        static bool isList(const std::string& text, std::map<std::string, std::unique_ptr<IBasicType>> userVariables);
+        static bool isList(const std::string& text);
         static bool allAreLists(std::vector<std::string> sources);
     private:
         std::vector<ListItem> _contents;
