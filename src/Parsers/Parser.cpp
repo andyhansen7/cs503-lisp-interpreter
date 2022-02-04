@@ -63,7 +63,7 @@ std::string Parser::parse(const std::string& text)
 
 EvaluationReturn Parser::evaluate(const std::string& data)
 {
-    debug("evalutate() called with " + data);
+    debug("evaluate() called with " + data);
 
     // Replace outer parenthesis
     auto pair = getOutermostParenthesis(data);

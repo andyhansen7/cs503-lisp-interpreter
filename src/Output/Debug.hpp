@@ -16,7 +16,7 @@ namespace output
     public:
         static inline void debugLog(const std::string& caller, const std::string& message)
         {
-            std::cout << "[ " << caller << " ]: " << message << std::endl;
+            std::cout << "\033[33m[ " << caller << " ]: " << message << "\033[0m" << std::endl;
         }
     };
 }

@@ -10,4 +10,6 @@ target_link_libraries(
     Parsers
     Functions
     BasicTypes
+    Interpreters
+    Output
 )
