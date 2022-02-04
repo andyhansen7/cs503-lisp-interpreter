@@ -77,28 +77,18 @@ std::string Parser::evaluate(const std::string& data)
     auto ops = getOperatorOperands(cleaned);
 
     // Evaluate user variables, if there are any
-    std::vector<std::string> parsedOperands = evaluateUserVars(ops.operands);
+    ops.operands = evaluateUserVars(ops.operands);
+
+    // Cast string objects to their respective types
+    auto parameters = getOperatorParameters(ops);
 
     // Run operation
     std::string result;
     if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
-//        auto result = globalOperations.at(ops._operation)(parsedOperands);
-//        return result->str();
-        return "";
+        auto result = arithmeticFunctions.at(parameters.operation)(parameters.params);
+        return result->str();
     }
-
-//        // setq implementation
-//    else if(ops._operation == "setq" || ops._operation == "set")
-//    {
-//        return setqImplementation(parsedOperands);
-//    }
-//
-//        // if then implementation
-//    else if(ops._operation == "if")
-//    {
-//        return ifImplementation(parsedOperands);
-//    }
 
     else
     {

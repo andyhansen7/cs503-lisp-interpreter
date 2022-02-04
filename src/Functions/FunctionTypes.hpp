@@ -6,9 +6,9 @@
 #define LISP_INTERPRETER_FUNCTIONTYPES_HPP
 
 // src
-#include <basic_types/List.hpp>
-#include <basic_types/Number.hpp>
-#include <basic_types/Conditional.hpp>
+#include <BasicTypes/List.hpp>
+#include <BasicTypes/Number.hpp>
+#include <BasicTypes/Conditional.hpp>
 
 // STl
 #include <vector>

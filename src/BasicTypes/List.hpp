@@ -6,15 +6,16 @@
 #define LISP_INTERPRETER_LIST_HPP
 
 // src
-#include <basic_types/Number.hpp>
-#include <basic_types/IBasicType.hpp>
+#include <BasicTypes/Number.hpp>
+#include <BasicTypes/IBasicType.hpp>
+#include <Error/ErrorHandle.hpp>
 
 // STL
 #include <string>
 #include <vector>
 #include <iostream>
 #include <memory>
-#include <error/ErrorHandle.hpp>
+#include <map>
 #include <boost/algorithm/string/replace.hpp>
 
 namespace basic_types
@@ -54,7 +55,7 @@ namespace basic_types
         void operator<<(std::ostream& stream) override;
         std::string str() override;
 
-        static bool isList(const std::string& text);
+        static bool isList(const std::string& text, std::map<std::string, std::unique_ptr<IBasicType>> userVariables);
         static bool allAreLists(std::vector<std::string> sources);
     private:
         std::vector<ListItem> _contents;

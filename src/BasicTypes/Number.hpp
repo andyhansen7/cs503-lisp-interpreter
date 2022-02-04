@@ -6,7 +6,7 @@
 #define LISP_INTERPRETER_NUMBER_HPP
 
 // src
-#include <basic_types/IBasicType.hpp>
+#include <BasicTypes/IBasicType.hpp>
 
 // STL
 #include <string>
@@ -35,12 +35,8 @@ namespace basic_types
         std::string str() override;
 
         static bool isNumber(const std::string& text);
-        static bool isInteger(const std::string& text);
-        static bool isFloat(const std::string& text);
-        static bool allAreIntegers(std::vector<Number> numbers);
     private:
         double _value;
-        int _castToInt;
     };
 }
 

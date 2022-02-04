@@ -6,7 +6,7 @@
 #define LISP_INTERPRETER_CONDITIONALOPERATORS_HPP
 
 // src
-#include <functions/FunctionTypes.hpp>
+#include <Functions/FunctionTypes.hpp>
 
 using namespace functions;
 

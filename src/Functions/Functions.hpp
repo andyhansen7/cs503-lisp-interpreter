@@ -6,11 +6,11 @@
 #define LISP_INTERPRETER_FUNCTIONS_HPP
 
 // src
-#include <functions/FunctionTypes.hpp>
-#include <functions/ArithmeticOperators.hpp>
-#include <functions/ConditionalOperators.hpp>
-#include <basic_types/List.hpp>
-#include <basic_types/Number.hpp>
+#include <Functions/FunctionTypes.hpp>
+#include <Functions/ArithmeticOperators.hpp>
+#include <Functions/ConditionalOperators.hpp>
+#include <BasicTypes/List.hpp>
+#include <BasicTypes/Number.hpp>
 
 // STl
 #include <map>

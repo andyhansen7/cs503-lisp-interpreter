@@ -6,10 +6,10 @@
 #define LISP_INTERPRETER_ARITHMETICOPERATORS_HPP
 
 // src
-#include <basic_types/Number.hpp>
-#include <basic_types/List.hpp>
-#include <functions/FunctionTypes.hpp>
-#include <error/ErrorHandle.hpp>
+#include <BasicTypes/Number.hpp>
+#include <BasicTypes/List.hpp>
+#include <Functions/FunctionTypes.hpp>
+#include <Error/ErrorHandle.hpp>
 
 // STL
 #include <string>
@@ -29,7 +29,6 @@ namespace functions
             if(params.listOperands.size() != 0) error("Addition not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Addition not given any number arguments!");
 
-            const bool resultIsInt = basic_types::Number::allAreIntegers(params.numberOperands);
             double val = 0.0f;
 
             for(auto it : params.numberOperands)
@@ -37,7 +36,7 @@ namespace functions
                 val += it.get();
             }
 
-            Number num(resultIsInt ? static_cast<int>(val) : val);
+            Number num(val);
             return std::make_unique<NumberReturnType>(num);
         }
 
@@ -46,7 +45,6 @@ namespace functions
             if(params.listOperands.size() != 0) error("Subtraction not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Subtraction not given any number arguments!");
 
-            const bool resultIsInt = basic_types::Number::allAreIntegers(params.numberOperands);
             double val = 0.0f;
             bool firstSet = false;
 
@@ -63,7 +61,7 @@ namespace functions
                 }
             }
 
-            Number num(resultIsInt ? static_cast<int>(val) : val);
+            Number num(val);
             return std::make_unique<NumberReturnType>(num);
         }
 
@@ -72,7 +70,6 @@ namespace functions
             if(params.listOperands.size() != 0) error("Multiply not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Multiply not given any number arguments!");
 
-            const bool resultIsInt = basic_types::Number::allAreIntegers(params.numberOperands);
             double val = 0.0f;
             bool firstSet = false;
 
@@ -89,7 +86,7 @@ namespace functions
                 }
             }
 
-            Number num(resultIsInt ? static_cast<int>(val) : val);
+            Number num(val);
             return std::make_unique<NumberReturnType>(num);
         }
 
@@ -98,7 +95,6 @@ namespace functions
             if(params.listOperands.size() != 0) error("Divide not possible with list arguments!");
             if(params.numberOperands.size() == 0) error("Divide not given any number arguments!");
 
-            const bool resultIsInt = basic_types::Number::allAreIntegers(params.numberOperands);
             double val = 0.0f;
             bool firstSet = false;
 
@@ -115,7 +111,7 @@ namespace functions
                 }
             }
 
-            Number num(resultIsInt ? static_cast<int>(val) : val);
+            Number num(val);
             return std::make_unique<NumberReturnType>(num);
         }
 

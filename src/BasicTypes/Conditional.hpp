@@ -6,8 +6,8 @@
 #define LISP_INTERPRETER_CONDITIONAL_HPP
 
 // src
-#include <basic_types/IBasicType.hpp>
-#include <error/ErrorHandle.hpp>
+#include <BasicTypes/IBasicType.hpp>
+#include <Error/ErrorHandle.hpp>
 
 // STL
 #include <string>
