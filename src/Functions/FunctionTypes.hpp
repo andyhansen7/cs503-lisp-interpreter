@@ -16,11 +16,11 @@
 
 namespace functions
 {
-    typedef struct function_parameter_type
+    typedef struct arithmetic_parameter_type
     {
         std::vector<basic_types::Number> numberOperands;
         std::vector<basic_types::List> listOperands;
-    } FunctionParameterType;
+    } ArithmeticParameterType;
 
     typedef struct conditional_parameter_type
     {

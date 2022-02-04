@@ -82,9 +82,9 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         debug("Found arithmetic operator " + ops.operation);
 
         // Cast string objects to their respective types
-        auto parameters = getOperatorParameters(ops);
+        auto parameters = getArithmeticParameterType(ops);
 
-        auto result = arithmeticFunctions.at(ops.operation)(parameters.params);
+        auto result = arithmeticFunctions.at(ops.operation)(parameters);
         return {.data = result->str(), .dataWasList = false};
     }
     else if(conditionalFunctions.find(ops.operation) != conditionalFunctions.end())
@@ -92,9 +92,9 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         debug("Found conditional operator " + ops.operation);
 
         // Cast string objects to condition and expressions
-        auto conditionalParams = getConditionalParameterType(ops);
+        auto parameters = getConditionalParameterType(ops);
 
-        auto result = conditionalFunctions.at(ops.operation)(conditionalParams);
+        auto result = conditionalFunctions.at(ops.operation)(parameters);
         return {.data = result->str(), .dataWasList = false};
     }
     else
@@ -149,20 +149,19 @@ OperatorOperands Parser::getOperatorOperands(const std::string& data)
     }
 }
 
-OperatorParameters Parser::getOperatorParameters(OperatorOperands ops)
+ArithmeticParameterType Parser::getArithmeticParameterType(const OperatorOperands& ops)
 {
-    OperatorParameters params;
-    params.operation = ops.operation;
+    ArithmeticParameterType params;
 
-    for(auto& it : ops.operands)
+    for(const auto& it : ops.operands)
     {
         if(Number::isNumber(it))
         {
-            params.params.numberOperands.push_back(Number(it));
+            params.numberOperands.push_back(Number(it));
         }
         else if(List::isList(it))
         {
-            params.params.listOperands.push_back(List(it));
+            params.listOperands.push_back(List(it));
         }
         else
         {
@@ -173,7 +172,7 @@ OperatorParameters Parser::getOperatorParameters(OperatorOperands ops)
     return params;
 }
 
-ConditionalParameterType Parser::getConditionalParameterType(OperatorOperands ops)
+ConditionalParameterType Parser::getConditionalParameterType(const OperatorOperands& ops)
 {
     ConditionalParameterType params;
 

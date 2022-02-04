@@ -31,12 +31,6 @@ namespace parsers
         std::vector<std::string> operands;
     } OperatorOperands;
 
-    typedef struct operator_parameters
-    {
-        std::string operation;
-        FunctionParameterType params;
-    } OperatorParameters;
-
     typedef struct evaluation_return
     {
         std::string data = "";
@@ -58,8 +52,8 @@ namespace parsers
 
         OperatorOperands getOperatorOperands(const std::string& data);
 
-        OperatorParameters getOperatorParameters(OperatorOperands ops);
-        ConditionalParameterType getConditionalParameterType(OperatorOperands ops);
+        ArithmeticParameterType getArithmeticParameterType(const OperatorOperands& ops);
+        ConditionalParameterType getConditionalParameterType(const OperatorOperands& ops);
 
         // Evaluate user variables in operands
         std::vector<std::string> evaluateUserVars(std::vector<std::string> operands);

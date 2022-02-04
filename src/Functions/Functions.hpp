@@ -23,7 +23,7 @@ namespace functions
 
     /** Map of all valid functions to all valid identifiers
      */
-    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(FunctionParameterType)>> arithmeticFunctions =
+    static std::map<std::string, std::function<std::unique_ptr<IReturnType>(ArithmeticParameterType)>> arithmeticFunctions =
     {
         {"+", ArithmeticOperations::add},
         {"-", ArithmeticOperations::subtract},
