@@ -11,6 +11,7 @@
 #include <Functions/ConditionalOperators.hpp>
 #include <Functions/BooleanOperators.hpp>
 #include <Functions/PrintOperator.hpp>
+#include <Functions/ListOperators.hpp>
 #include <BasicTypes/List.hpp>
 #include <BasicTypes/Number.hpp>
 
@@ -31,6 +32,11 @@ namespace functions
         {"-", ArithmeticOperations::subtract},
         {"*", ArithmeticOperations::multiply},
         {"/", ArithmeticOperations::divide}
+    };
+
+    static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ArithmeticParameterType)>> listFunctions =
+    {
+        {"cons", ListOperations::cons}
     };
 
     static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ArithmeticParameterType)>> booleanFunctions =

@@ -18,6 +18,7 @@ std::string Parser::parse(const std::string& text)
     debug("Starting parse with " + text);
     std::string data = text;;
     const bool singlePair = hasSinglePair(data);
+    std::size_t numberOfListOperands = 0;
 
     // If no parenthesis, nothing to evaluate
     if(hasNoPairs(data))
@@ -42,8 +43,9 @@ std::string Parser::parse(const std::string& text)
         // Iterate through pairs and evaluate
         for(std::size_t index = 0; index < parenthesisPairs.pairs.size(); index++)
         {
-            if(hasSinglePair(data))
+            if(parenthesisPairs.pairs.size() == (numberOfListOperands + 1))   // Add one for outer parentheses
             {
+                debug("Down to single pair! Returning single evaluation...");
                 return (evaluate(data)).data;
             }
 
@@ -54,6 +56,7 @@ std::string Parser::parse(const std::string& text)
             if(evaluated.dataWasList)
             {
                 debug("Substring is list! Moving onto next loop");
+                numberOfListOperands++;
                 continue;
             }
 
@@ -79,11 +82,12 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     // Check that param is not list
     if(List::isList(data))
     {
+        debug("Data was list! Returning " + cleaned);
         return {.data = data, .dataWasList = true};
     }
 
     // Split into components
-    auto ops = getOperatorOperands(cleaned);
+    auto ops = OperatorOperandsUtil::getOperatorOperands(cleaned);
 
     // Evaluate user variables, if there are any
     ops.operands = evaluateUserVars(ops.operands);
@@ -97,6 +101,26 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         auto parameters = getArithmeticParameterType(ops);
 
         auto result = arithmeticFunctions.at(ops.operation)(parameters);
+        return {.data = result->str(), .dataWasList = false};
+    }
+
+    if(listFunctions.find(ops.operation) != listFunctions.end())
+    {
+        debug("Found list operator " + ops.operation);
+
+        // Cast string objects to their respective types
+        auto parameters = getArithmeticParameterType(ops);
+
+        for(auto it : parameters.numberOperands)
+        {
+            debug(it.str());
+        }
+        for(auto it : parameters.listOperands)
+        {
+            debug(it.str());
+        }
+
+        auto result = listFunctions.at(ops.operation)(parameters);
         return {.data = result->str(), .dataWasList = false};
     }
 
@@ -168,63 +192,24 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     }
 }
 
-OperatorOperands Parser::getOperatorOperands(const std::string& data)
-{
-    // Assure there are more than 2 arguments
-    size_t spaceCount = std::count(data.begin(), data.end(), ' ');
-
-    if(spaceCount < 1)
-    {
-        error("Not enough spaces in input: " + data);
-        return {};
-    }
-    else
-    {
-        OperatorOperands ops;
-        std::string inputText = data;
-        const std::string delim = " ";
-        std::size_t pos = 0;
-        bool operationSet = false;
-
-        // Remove initial and end parenthesis
-        boost::replace_first(inputText, "(", "");
-        boost::replace_last(inputText, ")", "");
-
-        while((pos = inputText.find(delim)) != std::string::npos)
-        {
-            // Set operation if not yet set
-            if(!operationSet)
-            {
-                ops.operation = inputText.substr(0, pos);
-                inputText.erase(0, pos + delim.length());
-                operationSet = true;
-            }
-            else
-            {
-                ops.operands.push_back(inputText.substr(0, pos));
-                inputText.erase(0, pos + delim.length());
-            }
-        }
-
-        // Grab the last bit
-        ops.operands.push_back(inputText);
-
-        return ops;
-    }
-}
-
 ArithmeticParameterType Parser::getArithmeticParameterType(const OperatorOperands& ops)
 {
     ArithmeticParameterType params;
 
     for(const auto& it : ops.operands)
     {
+        if(it.length() < 1) // Discount any empty values
+        {
+            continue;
+        }
         if(Number::isNumber(it))
         {
+            debug("Adding type Number to return list with value " + it);
             params.numberOperands.push_back(Number(it));
         }
         else if(List::isList(it))
         {
+            debug("Adding type List to return list with value " + it);
             params.listOperands.push_back(List(it));
         }
         else

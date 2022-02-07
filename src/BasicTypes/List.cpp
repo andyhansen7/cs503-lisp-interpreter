@@ -5,6 +5,8 @@
 #include "List.hpp"
 
 #include <Functions/Functions.hpp>
+#include <Output/Debug.hpp>
+#include <Parsers/OperatorOperands.hpp>
 
 using namespace basic_types;
 
@@ -60,6 +62,19 @@ int List::size() const
     return _contents.size();
 }
 
+void List::push(const Number& number)
+{
+    auto n = std::make_shared<Number>(number);
+    auto l = std::make_shared<List>();
+    _contents.push_back(ListItem(n, l, false));
+}
+
+void List::push(const List& list)
+{
+    auto n = std::make_shared<Number>();
+    auto l = std::make_shared<List>(list);
+    _contents.push_back(ListItem(n, l, true));
+}
 
 bool List::isList(const std::string& text)
 {
@@ -68,27 +83,35 @@ bool List::isList(const std::string& text)
     std::size_t pos = 0;
     std::vector<std::string> textPieces;
 
+    bool resultIsList = (inputText[0] == '(') && (inputText[inputText.length() - 1] = ')');
+
     // Remove initial and end parenthesis
     boost::replace_first(inputText, "(", "");
     boost::replace_last(inputText, ")", "");
 
-    while((pos = inputText.find(delim)) != std::string::npos)
+    output::Debug::debugLog("IsList", "Calling OperatorOperands");
+    auto operatorOperands = parsers::OperatorOperandsUtil::getOperatorOperands(inputText);
+
+    std::vector<std::string> allOperands;
+    allOperands.push_back(operatorOperands.operation);
+    for(const auto& it : operatorOperands.operands)
     {
-        textPieces.push_back(inputText.substr(0, pos));
-        inputText.erase(0, pos + delim.length());
+        output::Debug::debugLog("IsList", "Received operand " + it);
+        allOperands.push_back(it);
     }
 
-    bool resultIsList = true;
-    for(const auto& it : textPieces)
+    for(const auto& it : allOperands)
     {
+        output::Debug::debugLog("IsList", "Testing " + it);
         bool itValid =  (functions::arithmeticFunctions.find(it) == functions::arithmeticFunctions.end()) &&
+                        (functions::listFunctions.find(it) == functions::listFunctions.end()) &&
                         (functions::booleanFunctions.find(it) == functions::booleanFunctions.end()) &&
                         (functions::printFunctions.find(it) == functions::printFunctions.end()) &&
                         (functions::conditionalFunctions.find(it) == functions::conditionalFunctions.end()) &&
                         (Number::isNumber(it) ||
                          isList(it));
 
-
+        output::Debug::debugLog("IsList", (itValid ? "Found valid list item: " + it : "Invalid list item: " + it));
         resultIsList &= itValid;
     }
 
@@ -122,13 +145,22 @@ std::vector<ListItem> List::buildList(const std::string& source)
     {
         std::string newItem = inputText.substr(0, pos);
         if(Number::isNumber(newItem))
-            list.push_back({.number = std::make_unique<Number>(newItem), .list = std::make_unique<List>(), .itemIsList = false});
+            list.push_back(ListItem(std::make_shared<Number>(newItem), std::make_shared<List>(), false));
         else if(isList(newItem))
-            list.push_back({.number = std::make_unique<Number>(), .list = std::make_unique<List>(newItem), .itemIsList = true});
+            list.push_back(ListItem(std::make_shared<Number>(), std::make_shared<List>(newItem), true));
         else
             output::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
 
         inputText.erase(0, pos + delim.length());
+    }
+    if(inputText != " " && inputText.length() > 0)
+    {
+        if(Number::isNumber(inputText))
+            list.push_back(ListItem(std::make_shared<Number>(inputText), std::make_shared<List>(), false));
+        else if(isList(inputText))
+            list.push_back(ListItem(std::make_shared<Number>(), std::make_shared<List>(inputText), true));
+        else
+            output::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
     }
 
     return list;

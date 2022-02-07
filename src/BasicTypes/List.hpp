@@ -25,21 +25,21 @@ namespace basic_types
     class ListItem
     {
     public:
-        ListItem(std::unique_ptr<Number> number, std::unique_ptr<List> list, bool itemIsList)
+        ListItem(std::shared_ptr<Number> number, std::shared_ptr<List> list, bool itemIsList)
             : number(std::move(number)), list(std::move(list)), itemIsList(itemIsList) {}
         ListItem(const ListItem& other)
-            : number(std::make_unique<Number>(*(other.number))), list(std::make_unique<List>(*(other.list))), itemIsList(other.itemIsList) {}
+            : number(std::make_shared<Number>(*(other.number))), list(std::make_shared<List>(*(other.list))), itemIsList(other.itemIsList) {}
         ListItem()
-            : number(std::make_unique<Number>()), list(std::make_unique<List>()), itemIsList(false) {}
+            : number(std::make_shared<Number>()), list(std::make_shared<List>()), itemIsList(false) {}
         void operator=(const ListItem& other)
         {
-            number = std::make_unique<Number>(*(other.number));
-            list = std::make_unique<List>(*(other.list));
+            number = std::make_shared<Number>(*(other.number));
+            list = std::make_shared<List>(*(other.list));
             itemIsList = other.itemIsList;
         }
 
-        std::unique_ptr<Number> number;
-        std::unique_ptr<List> list;
+        std::shared_ptr<Number> number;
+        std::shared_ptr<List> list;
         bool itemIsList = false;
     };
 
@@ -56,6 +56,8 @@ namespace basic_types
         std::string str() override;
 
         int size() const;
+        void push(const Number& number);
+        void push(const List& list);
         static bool isList(const std::string& text);
         static bool allAreLists(std::vector<std::string> sources);
     private:

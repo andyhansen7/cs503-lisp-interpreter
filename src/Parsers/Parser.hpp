@@ -11,6 +11,7 @@
 #include <BasicTypes/Conditional.hpp>
 #include <Output/ErrorHandle.hpp>
 #include <Output/Debug.hpp>
+#include <Parsers/OperatorOperands.hpp>
 #include <Parsers/ParenthesisUtils.hpp>
 #include <Functions/Functions.hpp>
 
@@ -25,12 +26,6 @@ using namespace parsers;
 
 namespace parsers
 {
-    typedef struct operator_operands
-    {
-        std::string operation;
-        std::vector<std::string> operands;
-    } OperatorOperands;
-
     typedef struct evaluation_return
     {
         std::string data = "";
@@ -43,14 +38,15 @@ namespace parsers
         Parser();
         ~Parser() = default;
 
+        // Parse a single command
         std::string parse(const std::string& text);
+
+        friend class List;
     private:
         std::map<std::string, std::shared_ptr<IBasicType>> _userVariables;
 
         // Evaluate an object by applying an operation and returning a string
         EvaluationReturn evaluate(const std::string& data);
-
-        OperatorOperands getOperatorOperands(const std::string& data);
 
         ArithmeticParameterType getArithmeticParameterType(const OperatorOperands& ops);
         ConditionalParameterType getConditionalParameterType(const OperatorOperands& ops);
@@ -59,10 +55,10 @@ namespace parsers
         std::vector<std::string> evaluateUserVars(std::vector<std::string> operands);
 
         // Error log call
-        void error(const std::string& message);
+        static void error(const std::string& message);
 
         // Debug log call
-        void debug(const std::string& message);
+        static void debug(const std::string& message);
     };
 }
 
