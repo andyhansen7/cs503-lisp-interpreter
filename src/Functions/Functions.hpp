@@ -12,6 +12,7 @@
 #include <Functions/BooleanOperators.hpp>
 #include <Functions/PrintOperator.hpp>
 #include <Functions/ListOperators.hpp>
+#include <Functions/TypeOperators.hpp>
 #include <BasicTypes/List.hpp>
 #include <BasicTypes/Number.hpp>
 
@@ -36,7 +37,9 @@ namespace functions
 
     static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ArithmeticParameterType)>> listFunctions =
     {
-        {"cons", ListOperations::cons}
+        {"cons", ListOperations::cons},
+        {"car", ListOperations::car},
+        {"cdr", ListOperations::cdr}
     };
 
     static std::map<std::string, std::function<std::shared_ptr<IReturnType>(ArithmeticParameterType)>> booleanFunctions =
@@ -54,6 +57,14 @@ namespace functions
     static std::map<std::string, std::function<std::shared_ptr<IReturnType>(std::shared_ptr<basic_types::IBasicType>)>> printFunctions =
     {
         {"print", PrintOperator::print}
+    };
+
+    static std::map<std::string, std::function<std::shared_ptr<IReturnType>(parsers::OperatorOperands)>> typeFunctions =
+    {
+        {"number?", TypeOperations::isNumber},
+        {"list?", TypeOperations::isList},
+        {"null?", TypeOperations::isNull},
+        {"symbol?", TypeOperations::isReserved}
     };
 }
 

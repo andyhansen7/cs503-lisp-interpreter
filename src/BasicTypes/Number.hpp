@@ -29,13 +29,16 @@ namespace basic_types
         void operator=(const int val);
         void operator=(const double val);
         void operator<<(std::ostream& stream) override;
-
-        double get() const;
+        std::string type() const override { return "NUMBER"; }
+        bool isNull() const override { return _isNull; }
         std::string str() override;
+        double get() const;
+
 
         static bool isNumber(const std::string& text);
     private:
         double _value;
+        bool _isNull;
     };
 }
 

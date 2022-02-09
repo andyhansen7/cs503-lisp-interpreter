@@ -34,9 +34,12 @@ namespace basic_types
         static bool isConditional(const std::string& source);
 
         void operator<<(std::ostream& stream) override;
+        std::string type() const override { return "CONDITIONAL"; }
+        bool isNull() const override { return _isNull; }
         std::string str() override;
     private:
         bool _val;
+        bool _isNull;
 
         bool parseConditional(const std::string& source);
     };

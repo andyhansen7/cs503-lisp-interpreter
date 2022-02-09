@@ -1,0 +1,20 @@
+IF          x
+WHILE
+SET         x
+BEGIN
++           x
+-           x
+*           x
+/           x
+=           x
+<           x
+>           x
+CONS        x
+CAR         x
+CDR         x
+NUMBER?     x
+SYSMBOL?    x
+LIST?       x
+NULL?       x
+PRINT       x
+T

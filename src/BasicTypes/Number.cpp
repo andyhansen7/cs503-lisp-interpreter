@@ -11,21 +11,28 @@ Number::Number(const std::string& source)
     if(isNumber(source))
     {
         _value = std::stof(source);
+        _isNull = false;
+    }
+    else
+    {
+        _isNull = true;
     }
 }
 
 Number::Number(const int value)
 {
     _value = static_cast<double>(value);
+    _isNull = false;
 }
 
 Number::Number(const double value)
 {
     _value = value;
+    _isNull = false;
 }
 
 Number::Number()
-    : _value(0.0f)
+    : _value(0.0f), _isNull(true)
 {
 
 }
@@ -33,20 +40,23 @@ Number::Number()
 void Number::operator=(const Number& source)
 {
     _value = source._value;
+    _isNull = false;
 }
 
 void Number::operator=(const int val)
 {
     _value = static_cast<double>(val);
+    _isNull = false;
 }
 void Number::operator=(const double val)
 {
     _value = val;
+    _isNull = false;
 }
 
 void Number::operator<<(std::ostream& stream)
 {
-    stream << _value;
+    stream << (_isNull ? "NIL" : std::to_string(_value));
 }
 
 double Number::get() const
@@ -56,7 +66,7 @@ double Number::get() const
 
 std::string Number::str()
 {
-    return  std::to_string(_value);
+    return  (_isNull ? "NIL" : std::to_string(_value));
 }
 
 bool Number::isNumber(const std::string& text)

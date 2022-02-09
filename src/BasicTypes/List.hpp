@@ -53,11 +53,15 @@ namespace basic_types
         void operator=(const List& other);
         void operator=(const std::string& source);
         void operator<<(std::ostream& stream) override;
+        std::string type() const override { return "LIST"; }
+        bool isNull() const override { return _contents.size() == 0; }
         std::string str() override;
 
         int size() const;
         void push(const Number& number);
         void push(const List& list);
+        std::string car();
+        std::string cdr();
         static bool isList(const std::string& text);
         static bool allAreLists(std::vector<std::string> sources);
     private:

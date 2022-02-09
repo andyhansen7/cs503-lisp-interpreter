@@ -13,7 +13,7 @@ Parser::Parser()
 
 }
 
-std::string Parser::parse(const std::string& text)
+std::vector<std::string> Parser::parse(const std::string& text)
 {
     debug("Starting parse with " + text);
     std::string data = text;;
@@ -24,14 +24,58 @@ std::string Parser::parse(const std::string& text)
     if(hasNoPairs(data))
     {
         debug("Nothing to evaluate!");
-        return data;
+        return { "\'data\'" };
+    }
+
+    // Begin routine call
+    std::string beginTest = "";
+    if(data.length() > 6)
+        beginTest = data.substr(1, 5);
+
+    debug(beginTest);
+    if(beginTest == "begin")
+    {
+        debug("Beginning recursive parse...");
+        std::string copy = data;
+        std::vector<std::string> expressions, returnStrings;
+
+        while(true)
+        {
+            auto pairs = getAllParenthesisLocations(copy);
+            std::reverse(pairs.pairs.begin(), pairs.pairs.end());
+
+            if(pairs.pairs.size() < 2)
+                break;
+            else
+            {
+                std::string expression = copy.substr(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
+                debug("Located expression " + expression);
+                expressions.push_back(expression);
+                copy.erase(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
+                debug("Copy is now " + copy);
+            }
+        }
+
+        std::reverse(expressions.begin(), expressions.end());
+
+        for(const auto& s : expressions)
+        {
+            debug("Evaluating expression " + s);
+            returnStrings.push_back(s);
+            for(const auto& t : parse(s))
+            {
+                returnStrings.push_back(t);
+            }
+        }
+
+        return returnStrings;
     }
 
     // Single pair of parenthesis remaining, evaluate expression at face value and return
-    if(singlePair)
+    else if(singlePair)
     {
         debug("Single atom object, evaluating and returning...");
-        return (evaluate(data)).data;
+        return { data, (evaluate(data)).data };
     }
 
     // Multiple pairs of parenthesis remaining, got to be a little smarter
@@ -46,7 +90,7 @@ std::string Parser::parse(const std::string& text)
             if(parenthesisPairs.pairs.size() == (numberOfListOperands + 1))   // Add one for outer parentheses
             {
                 debug("Down to single pair! Returning single evaluation...");
-                return (evaluate(data)).data;
+                return { data, (evaluate(data)).data };
             }
 
             std::string substring = data.substr(parenthesisPairs.pairs.at(index).front, (parenthesisPairs.pairs.at(index).rear - parenthesisPairs.pairs.at(index).front + 1));
@@ -65,7 +109,7 @@ std::string Parser::parse(const std::string& text)
             debug("Data is now " + data);
         }
 
-        return "";
+        return { "" };
     }
 }
 
@@ -93,7 +137,83 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     ops.operands = evaluateUserVars(ops.operands);
 
     // Run operation
-    if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
+    if(ops.operation == "set" || ops.operation == "setq")
+    {
+        debug("Parsing operation " + ops.operation);
+
+        if(ops.operands.size() != 2)
+        {
+            error("Set cannot take more than 2 inputs, a var name and a value: " + data);
+            return {.data = "", .dataWasList = false};
+        }
+
+        std::string var = ops.operands[0];
+        std::string val = ops.operands[1];
+        std::shared_ptr<IBasicType> valType;
+
+        if(Number::isNumber(val))
+        {
+            valType = std::make_shared<Number>(val);
+        }
+        else if(Conditional::isConditional(val))
+        {
+            valType = std::make_shared<Number>(val);
+        }
+        else if(List::isList(val))
+        {
+            valType = std::make_shared<List>(val);
+        }
+        else
+        {
+            error("Cannot parse List, Number or Conditional from data: " + val);
+        }
+
+        // Set value
+        if(_userVariables.find(var) != _userVariables.end())
+        {
+            // Update existing var
+            _userVariables.at(var) = valType;
+        }
+        else
+        {
+            _userVariables.emplace(var, valType);
+        }
+
+        return {.data = "OK", .dataWasList = false};
+    }
+
+//    else if(ops.operation == "begin")
+//    {
+//        debug("Parsing operation " + ops.operation);
+//
+//        // Create parenthesis pairs for expression
+//        std::string copy = data;
+//        std::vector<std::string> expressions;
+//
+//        while(true)
+//        {
+//            auto pairs = getAllParenthesisLocations(copy);
+//
+//            if(pairs.pairs.size() < 2) break;
+//            else
+//            {
+//                std::string expression = copy.substr(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
+//                expressions.push_back(expression);
+//                copy.erase(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
+//            }
+//        }
+//
+//        for(const auto& s : expressions)
+//        {
+//            debug(s);
+//        }
+//
+//        debug("Beginning recursive parse...");
+//
+//        return {.data = "ASHJSA", .dataWasList = false};
+//    }
+
+    else if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
         debug("Found arithmetic operator " + ops.operation);
 
@@ -104,7 +224,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         return {.data = result->str(), .dataWasList = false};
     }
 
-    if(listFunctions.find(ops.operation) != listFunctions.end())
+    else if(listFunctions.find(ops.operation) != listFunctions.end())
     {
         debug("Found list operator " + ops.operation);
 
@@ -185,6 +305,14 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         return {.data = result->str(), .dataWasList = false};
     }
 
+    else if(typeFunctions.find(ops.operation) != typeFunctions.end())
+    {
+        debug("Found type operator " + ops.operation);
+
+        auto result = typeFunctions.at(ops.operation)(ops);
+        return {.data = result->str(), .dataWasList = false};
+    }
+
     else
     {
         error(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
@@ -258,6 +386,7 @@ std::vector<std::string> Parser::evaluateUserVars(std::vector<std::string> opera
         if(_userVariables.find(it) != _userVariables.end())
         {
             // Evaluate variable and apply
+            debug("Applying user var with value " + it + " to " + _userVariables.at(it)->str());
             it = _userVariables.at(it)->str();
         }
     }

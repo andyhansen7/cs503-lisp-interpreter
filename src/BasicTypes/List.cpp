@@ -76,6 +76,39 @@ void List::push(const List& list)
     _contents.push_back(ListItem(n, l, true));
 }
 
+std::string List::car()
+{
+    auto item = _contents[0];
+
+    if(item.itemIsList)
+    {
+        return item.list->str();
+    }
+    else
+    {
+        return item.number->str();
+    }
+}
+
+std::string List::cdr()
+{
+    List newList;
+    for(std::size_t i = 1; i < _contents.size(); i++)
+    {
+        auto item = _contents[i];
+        if(item.itemIsList)
+        {
+            newList.push(*(item.list));
+        }
+        else
+        {
+            newList.push(*(item.number));
+        }
+    }
+
+    return newList.str();
+}
+
 bool List::isList(const std::string& text)
 {
     std::string inputText = text;
@@ -83,11 +116,23 @@ bool List::isList(const std::string& text)
     std::size_t pos = 0;
     std::vector<std::string> textPieces;
 
+    if(inputText == "()" || inputText == "( )")
+    {
+        output::Debug::debugLog("IsList", "Returning true for empty list: " + inputText);
+        return true;
+    }
+
     bool resultIsList = (inputText[0] == '(') && (inputText[inputText.length() - 1] = ')');
 
     // Remove initial and end parenthesis
     boost::replace_first(inputText, "(", "");
     boost::replace_last(inputText, ")", "");
+
+    // Check that string is not a single entry
+    if(inputText.find(' ') == std::string::npos)
+    {
+        return Number::isNumber(inputText);
+    }
 
     output::Debug::debugLog("IsList", "Calling OperatorOperands");
     auto operatorOperands = parsers::OperatorOperandsUtil::getOperatorOperands(inputText);
@@ -108,6 +153,7 @@ bool List::isList(const std::string& text)
                         (functions::booleanFunctions.find(it) == functions::booleanFunctions.end()) &&
                         (functions::printFunctions.find(it) == functions::printFunctions.end()) &&
                         (functions::conditionalFunctions.find(it) == functions::conditionalFunctions.end()) &&
+                        (functions::typeFunctions.find(it) == functions::typeFunctions.end()) &&
                         (Number::isNumber(it) ||
                          isList(it));
 
@@ -115,6 +161,7 @@ bool List::isList(const std::string& text)
         resultIsList &= itValid;
     }
 
+    output::Debug::debugLog("IsList", (resultIsList ? "Found valid list: " + inputText : "Invalid list: " + inputText));
     return resultIsList;
 }
 

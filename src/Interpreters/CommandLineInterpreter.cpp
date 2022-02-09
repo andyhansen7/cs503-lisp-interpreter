@@ -4,6 +4,9 @@
 
 #include "CommandLineInterpreter.hpp"
 
+// STL
+#include <vector>
+
 using namespace interpreters;
 
 CommandLineInterpreter::CommandLineInterpreter(std::istream& inputStream, std::ostream& outputStream)
@@ -21,7 +24,7 @@ int CommandLineInterpreter::start()
     while(true)
     {
         std::string userInput = "";
-        std::string result = "";
+        std::vector<std::string> result;
         std::string prompt = "> ";
         bool exception = false;
 
@@ -45,7 +48,10 @@ int CommandLineInterpreter::start()
         }
         if(!exception)
         {
-            _outstream << result << std::endl;
+            for(const auto& str : result)
+            {
+                _outstream << str << std::endl;
+            }
         }
     }
 }

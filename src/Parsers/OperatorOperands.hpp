@@ -57,7 +57,7 @@ namespace parsers
                 for(const auto& p : locations.pairs)
                 {
                     std::string list = inputText.substr(p.front, (p.rear - p.front + 1));
-                    if(List::isList(list))
+                    if(list == "()" || list == "( )" || List::isList(list))
                     {
                         listOps.push_back(list);
                         debug("OperationOperands found list" + list);
@@ -66,7 +66,7 @@ namespace parsers
                 }
                 debug("Input text is now " + inputText);
 
-                while((pos = inputText.find(delim)) != std::string::npos)
+                while(((pos = inputText.find(delim)) != std::string::npos) && inputText != " ")
                 {
                     debug("Input text is now " + inputText);
 

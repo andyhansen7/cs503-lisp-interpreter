@@ -39,7 +39,7 @@ namespace parsers
         ~Parser() = default;
 
         // Parse a single command
-        std::string parse(const std::string& text);
+        std::vector<std::string> parse(const std::string& text);
 
         friend class List;
     private:

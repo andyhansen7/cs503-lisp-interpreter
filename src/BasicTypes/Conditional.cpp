@@ -7,12 +7,12 @@
 using namespace basic_types;
 
 Conditional::Conditional(const std::string& source)
-    : _val(parseConditional(source))
+    : _val(parseConditional(source)), _isNull(false)
 {
 
 }
 Conditional::Conditional(const Conditional& other)
-    : _val(other._val)
+    : _val(other._val), _isNull(false)
 {
 
 }
@@ -20,11 +20,13 @@ Conditional::Conditional(const Conditional& other)
 Conditional::Conditional(const Number& number)
 {
     _val = (number.get() > 0.0f);
+    _isNull = false;
 }
 
 Conditional::Conditional(const List& list)
 {
     _val = (list.size() > 0);
+    _isNull = false;
 }
 
 Conditional::Conditional()
@@ -36,11 +38,13 @@ Conditional::Conditional()
 void Conditional::operator=(const Conditional& other)
 {
     _val = other._val;
+    _isNull = false;
 }
 
 void Conditional::operator=(const std::string& source)
 {
     _val = parseConditional(source);
+    _isNull = false;
 }
 
 Conditional::operator bool() const
