@@ -45,7 +45,7 @@ namespace functions
             auto originalList = params.listOperands[0];
             std::string carItem = originalList.car();
 
-            if(List::isList(carItem))
+            if(List::isList(carItem, {}))
             {
                 return std::make_shared<ListReturnType>(List(carItem));
             }
@@ -69,7 +69,7 @@ namespace functions
             auto originalList = params.listOperands[0];
             std::string cdrItem = originalList.cdr();
 
-            if(List::isList(cdrItem))
+            if(List::isList(cdrItem, {}))
             {
                 return std::make_shared<ListReturnType>(List(cdrItem));
             }

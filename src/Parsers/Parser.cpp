@@ -29,10 +29,13 @@ std::vector<std::string> Parser::parse(const std::string& text)
 
     // Begin routine call
     std::string beginTest = "";
+    std::string whileTest = "";
     if(data.length() > 6)
+    {
         beginTest = data.substr(1, 5);
+        whileTest = data.substr(1, 5);
+    }
 
-    debug(beginTest);
     if(beginTest == "begin")
     {
         debug("Beginning recursive parse...");
@@ -56,16 +59,49 @@ std::vector<std::string> Parser::parse(const std::string& text)
             }
         }
 
-        std::reverse(expressions.begin(), expressions.end());
-
         for(const auto& s : expressions)
         {
             debug("Evaluating expression " + s);
-            returnStrings.push_back(s);
-            for(const auto& t : parse(s))
+            auto parsed = parse(s);
+            for(const auto& t : parsed)
             {
                 returnStrings.push_back(t);
             }
+        }
+
+        return returnStrings;
+    }
+
+    else if(whileTest == "while")
+    {
+        debug("Beginning while loop...");
+        auto pairs = getAllParenthesisLocations(data);
+        std::reverse(pairs.pairs.begin(), pairs.pairs.end());
+        if(pairs.pairs.size() < 3)
+        {
+            error("Wrong number of arguments provided in while!");
+        }
+
+        // Extract condition and expression from argument
+        std::string condition = data.substr(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
+        std::string expression = data.substr(pairs.pairs[2].front, (pairs.pairs[2].rear - pairs.pairs[2].front + 1));
+        std::vector<std::string> returnStrings;
+        debug("Condition is " + condition + ", expression is " + expression);
+
+        while(true)
+        {
+            // Run expression if condition is true
+            auto conditionEval = evaluate(condition);
+            if(conditionEval.data == "T")
+            {
+                auto parsed = parse(expression);
+                for(const auto& s : parsed)
+                {
+                    returnStrings.push_back(s);
+                }
+            }
+            else
+                break;
         }
 
         return returnStrings;
@@ -83,6 +119,31 @@ std::vector<std::string> Parser::parse(const std::string& text)
     {
         // Load parenthesis pairs
         auto parenthesisPairs = getAllParenthesisLocations(data);
+
+//        // Iterate through pairs and evaluate
+//        for(std::size_t index = 0; index < parenthesisPairs.pairs.size(); index++)
+//        {
+//            if(parenthesisPairs.pairs.size() == (numberOfListOperands + 1))   // Add one for outer parentheses
+//            {
+//                debug("Down to single pair! Returning single evaluation...");
+//                return { data, (evaluate(data)).data };
+//            }
+//
+//            std::string substring = data.substr(parenthesisPairs.pairs.at(index).front, (parenthesisPairs.pairs.at(index).rear - parenthesisPairs.pairs.at(index).front + 1));
+//            debug("Current substring is " + substring);
+//
+//            auto evaluated = evaluate(substring);
+//            if(evaluated.dataWasList)
+//            {
+//                debug("Substring is list! Moving onto next loop");
+//                numberOfListOperands++;
+//                continue;
+//            }
+//
+//            debug("Evaluation returned " + evaluated.data);
+//            boost::replace_all(data, substring, evaluated.data);
+//            debug("Data is now " + data);
+//        }
 
         // Iterate through pairs and evaluate
         for(std::size_t index = 0; index < parenthesisPairs.pairs.size(); index++)
@@ -106,7 +167,8 @@ std::vector<std::string> Parser::parse(const std::string& text)
 
             debug("Evaluation returned " + evaluated.data);
             boost::replace_all(data, substring, evaluated.data);
-            debug("Data is now " + data);
+            debug("Data is now " + data + ", calling parse...");
+            return parse(data);
         }
 
         return { "" };
@@ -124,7 +186,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     debug("cleaned data to " + cleaned);
 
     // Check that param is not list
-    if(List::isList(data))
+    if(List::isList(data, _userVariables))
     {
         debug("Data was list! Returning " + cleaned);
         return {.data = data, .dataWasList = true};
@@ -132,9 +194,6 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
     // Split into components
     auto ops = OperatorOperandsUtil::getOperatorOperands(cleaned);
-
-    // Evaluate user variables, if there are any
-    ops.operands = evaluateUserVars(ops.operands);
 
     // Run operation
     if(ops.operation == "set" || ops.operation == "setq")
@@ -159,7 +218,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         {
             valType = std::make_shared<Number>(val);
         }
-        else if(List::isList(val))
+        else if(List::isList(val, _userVariables))
         {
             valType = std::make_shared<List>(val);
         }
@@ -171,18 +230,18 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         // Set value
         if(_userVariables.find(var) != _userVariables.end())
         {
-            // Update existing var
-            _userVariables.at(var) = valType;
+            // Remove existing var
+            _userVariables.erase(_userVariables.find(var));
         }
-        else
-        {
-            _userVariables.emplace(var, valType);
-        }
+        _userVariables.emplace(var, valType);
 
         return {.data = "OK", .dataWasList = false};
     }
 
-    else if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
+    // Evaluate user variables, if there are any
+    ops.operands = evaluateUserVars(ops.operands);
+
+    if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
         debug("Found arithmetic operator " + ops.operation);
 
@@ -260,7 +319,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         {
             basicType = std::make_shared<Number>(ops.operands[0]);
         }
-        else if(List::isList(ops.operands[0]))
+        else if(List::isList(ops.operands[0], _userVariables))
         {
             basicType = std::make_shared<List>(ops.operands[0]);
         }
@@ -304,7 +363,7 @@ ArithmeticParameterType Parser::getArithmeticParameterType(const OperatorOperand
             debug("Adding type Number to return list with value " + it);
             params.numberOperands.push_back(Number(it));
         }
-        else if(List::isList(it))
+        else if(List::isList(it, _userVariables))
         {
             debug("Adding type List to return list with value " + it);
             params.listOperands.push_back(List(it));

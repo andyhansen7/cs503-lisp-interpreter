@@ -1,7 +1,7 @@
 IF          x
 WHILE
 SET         x
-BEGIN
+BEGIN		x
 +           x
 -           x
 *           x
@@ -17,4 +17,4 @@ SYSMBOL?    x
 LIST?       x
 NULL?       x
 PRINT       x
-T
+T			x

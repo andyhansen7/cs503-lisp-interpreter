@@ -74,7 +74,7 @@ bool Conditional::parseConditional(const std::string& source)
     {
         return (Number(source).get() > 0.0f);
     }
-    else if(List::isList(source))
+    else if(List::isList(source, {}))
     {
         return (List(source).size() > 0);
     }

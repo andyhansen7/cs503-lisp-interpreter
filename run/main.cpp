@@ -10,7 +10,7 @@
 
 int main(void)
 {
-    output::Debug::useDebug = false;
+    output::Debug::useDebug = true;
     interpreters::CommandLineInterpreter interpreter(std::cin, std::cout);
     interpreter.start();
 

@@ -62,8 +62,8 @@ namespace basic_types
         void push(const List& list);
         std::string car();
         std::string cdr();
-        static bool isList(const std::string& text);
-        static bool allAreLists(std::vector<std::string> sources);
+        static bool isList(const std::string& text, const std::map<std::string, std::shared_ptr<IBasicType>> userVars);
+        static bool allAreLists(std::vector<std::string> sources, const std::map<std::string, std::shared_ptr<IBasicType>> userVars);
     private:
         std::vector<ListItem> _contents;
 

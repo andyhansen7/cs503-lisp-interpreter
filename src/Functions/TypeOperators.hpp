@@ -36,7 +36,7 @@ namespace functions
         {
             if(ops.operands.size() != 1) error("isList can only test one argument!");
 
-            if(List::isList(ops.operands[0]))
+            if(List::isList(ops.operands[0], {}))
                 return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
             else
                 return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
@@ -60,7 +60,7 @@ namespace functions
                 else
                     return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
             }
-            else if(List::isList(ops.operands[0]))
+            else if(List::isList(ops.operands[0], {}))
             {
                 if(List(ops.operands[0]).isNull())
                     return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));

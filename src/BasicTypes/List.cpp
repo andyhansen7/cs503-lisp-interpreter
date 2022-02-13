@@ -12,7 +12,7 @@ using namespace basic_types;
 
 List::List(const std::string &source)
 {
-    if(isList(source))
+    if(isList(source, {}))
     {
         _contents = buildList(source);
     }
@@ -30,7 +30,7 @@ void List::operator=(const List& other)
 
 void List::operator=(const std::string& source)
 {
-    if(isList(source))
+    if(isList(source, {}))
     {
         _contents = buildList(source);
     };
@@ -109,7 +109,7 @@ std::string List::cdr()
     return newList.str();
 }
 
-bool List::isList(const std::string& text)
+bool List::isList(const std::string& text, const std::map<std::string, std::shared_ptr<IBasicType>> userVars)
 {
     std::string inputText = text;
     const std::string delim = " ";
@@ -153,8 +153,9 @@ bool List::isList(const std::string& text)
                         (functions::printFunctions.find(it) == functions::printFunctions.end()) &&
                         (functions::conditionalFunctions.find(it) == functions::conditionalFunctions.end()) &&
                         (functions::typeFunctions.find(it) == functions::typeFunctions.end()) &&
+                        (userVars.find(it) == userVars.end()) &&
                         (Number::isNumber(it) ||
-                         isList(it));
+                         isList(it, userVars));
 
         output::Debug::debugLog("IsList", (itValid ? "Found valid list item: " + it : "Invalid list item: " + it));
         resultIsList &= itValid;
@@ -164,13 +165,13 @@ bool List::isList(const std::string& text)
     return resultIsList;
 }
 
-bool List::allAreLists(std::vector<std::string> sources)
+bool List::allAreLists(std::vector<std::string> sources, const std::map<std::string, std::shared_ptr<IBasicType>> userVars)
 {
     bool ret = true;
 
     for(auto it : sources)
     {
-        ret &= isList(it);
+        ret &= isList(it, userVars);
     }
 
     return ret;
@@ -192,7 +193,7 @@ std::vector<ListItem> List::buildList(const std::string& source)
         std::string newItem = inputText.substr(0, pos);
         if(Number::isNumber(newItem))
             list.push_back(ListItem(std::make_shared<Number>(newItem), std::make_shared<List>(), false));
-        else if(isList(newItem))
+        else if(isList(newItem, {}))
             list.push_back(ListItem(std::make_shared<Number>(), std::make_shared<List>(newItem), true));
         else
             output::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
@@ -203,7 +204,7 @@ std::vector<ListItem> List::buildList(const std::string& source)
     {
         if(Number::isNumber(inputText))
             list.push_back(ListItem(std::make_shared<Number>(inputText), std::make_shared<List>(), false));
-        else if(isList(inputText))
+        else if(isList(inputText, {}))
             list.push_back(ListItem(std::make_shared<Number>(), std::make_shared<List>(inputText), true));
         else
             output::ErrorHandle::handleError("List Builder", "Invalid argument given to list builder than cannot be parsed as a number or list: " + source);
