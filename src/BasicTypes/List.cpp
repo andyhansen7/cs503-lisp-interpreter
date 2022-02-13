@@ -113,7 +113,6 @@ bool List::isList(const std::string& text)
 {
     std::string inputText = text;
     const std::string delim = " ";
-    std::size_t pos = 0;
     std::vector<std::string> textPieces;
 
     if(inputText == "()" || inputText == "( )")

@@ -151,11 +151,11 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         std::string val = ops.operands[1];
         std::shared_ptr<IBasicType> valType;
 
-        if(Number::isNumber(val))
+        if(Conditional::isConditional(val))
         {
             valType = std::make_shared<Number>(val);
         }
-        else if(Conditional::isConditional(val))
+        else if(Number::isNumber(val))
         {
             valType = std::make_shared<Number>(val);
         }
@@ -181,37 +181,6 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
         return {.data = "OK", .dataWasList = false};
     }
-
-//    else if(ops.operation == "begin")
-//    {
-//        debug("Parsing operation " + ops.operation);
-//
-//        // Create parenthesis pairs for expression
-//        std::string copy = data;
-//        std::vector<std::string> expressions;
-//
-//        while(true)
-//        {
-//            auto pairs = getAllParenthesisLocations(copy);
-//
-//            if(pairs.pairs.size() < 2) break;
-//            else
-//            {
-//                std::string expression = copy.substr(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
-//                expressions.push_back(expression);
-//                copy.erase(pairs.pairs[1].front, (pairs.pairs[1].rear - pairs.pairs[1].front + 1));
-//            }
-//        }
-//
-//        for(const auto& s : expressions)
-//        {
-//            debug(s);
-//        }
-//
-//        debug("Beginning recursive parse...");
-//
-//        return {.data = "ASHJSA", .dataWasList = false};
-//    }
 
     else if(arithmeticFunctions.find(ops.operation) != arithmeticFunctions.end())
     {
@@ -283,6 +252,10 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
         // Create single object to be printed
         std::shared_ptr<IBasicType> basicType;
+        if(Conditional::isConditional(ops.operands[0]))
+        {
+            basicType = std::make_shared<Conditional>(ops.operands[0]);
+        }
         if(Number::isNumber(ops.operands[0]))
         {
             basicType = std::make_shared<Number>(ops.operands[0]);
@@ -290,10 +263,6 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         else if(List::isList(ops.operands[0]))
         {
             basicType = std::make_shared<List>(ops.operands[0]);
-        }
-        else if(Conditional::isConditional(ops.operands[0]))
-        {
-            basicType = std::make_shared<Conditional>(ops.operands[0]);
         }
         else
         {

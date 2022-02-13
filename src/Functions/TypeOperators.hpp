@@ -29,7 +29,7 @@ namespace functions
             if(Number::isNumber(ops.operands[0]))
                 return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
             else
-                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("NIL")));
+                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
         }
 
         static std::shared_ptr<ConditionalReturnType> isList(OperatorOperands ops)
@@ -39,38 +39,38 @@ namespace functions
             if(List::isList(ops.operands[0]))
                 return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
             else
-                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("NIL")));
+                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
         }
 
         static std::shared_ptr<ConditionalReturnType> isNull(OperatorOperands ops)
         {
             if(ops.operands.size() != 1) error("isNull can only test one argument!");
 
-            if(Number::isNumber(ops.operands[0]))
-            {
-                if(Number(ops.operands[0]).isNull())
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
-                else
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("NIL")));
-            }
-            else if(Conditional::isConditional(ops.operands[0]))
+            if(Conditional::isConditional(ops.operands[0]))
             {
                 if(Conditional(ops.operands[0]).isNull())
                     return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
                 else
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("NIL")));
+                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
+            }
+            else if(Number::isNumber(ops.operands[0]))
+            {
+                if(Number(ops.operands[0]).isNull())
+                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
+                else
+                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
             }
             else if(List::isList(ops.operands[0]))
             {
                 if(List(ops.operands[0]).isNull())
                     return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
                 else
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("NIL")));
+                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
             }
             else
             {
                 error("isNull couldn't convert data to List, Number or Conditional: " + ops.operands[0]);
-                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("NIL")));
+                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
             }
         }
 
@@ -97,7 +97,7 @@ namespace functions
             isReserved |= (data == "null?");
             isReserved |= (data == "symbol?");
 
-            return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional((isReserved ? "T" : "NIL"))));
+            return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional((isReserved ? "T" : "()"))));
         }
 
     private:

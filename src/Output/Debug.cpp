@@ -3,3 +3,7 @@
 //
 
 #include "Debug.hpp"
+
+using namespace output;
+
+bool Debug::useDebug = true;

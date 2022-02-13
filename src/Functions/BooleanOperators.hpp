@@ -37,7 +37,7 @@ namespace functions
             }
             else
             {
-                Conditional cond("NIL");
+                Conditional cond("()");
                 return std::make_shared<ConditionalReturnType>(cond);
             }
         }
@@ -57,7 +57,7 @@ namespace functions
             }
             else
             {
-                Conditional cond("NIL");
+                Conditional cond("()");
                 return std::make_shared<ConditionalReturnType>(cond);
             }
         }
@@ -77,7 +77,7 @@ namespace functions
             }
             else
             {
-                Conditional cond("NIL");
+                Conditional cond("()");
                 return std::make_shared<ConditionalReturnType>(cond);
             }
         }

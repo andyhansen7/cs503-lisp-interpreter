@@ -21,12 +21,14 @@ namespace parsers
         std::vector<ParenthesisLocations> pairs;
     } AllParenthesisLocations;
 
+    [[maybe_unused]]
     static bool compareLocations(const ParenthesisLocations& a, const ParenthesisLocations& b)
     {
         return a.front > b.front;
     }
 
     // Returns indices of innermost (last) pair of parenthesis
+    [[maybe_unused]]
     static ParenthesisLocations getInnermostParenthesis(std::string data)
     {
         std::size_t frontIndex = data.find_last_of("(");
@@ -36,6 +38,7 @@ namespace parsers
     }
 
     // Returns indices of outermost (first) pair of parenthesis
+    [[maybe_unused]]
     static ParenthesisLocations getOutermostParenthesis(std::string data)
     {
         std::size_t frontIndex = data.find_first_of("(");
@@ -44,6 +47,7 @@ namespace parsers
         return {.front = frontIndex, .rear = rearIndex};
     }
 
+    [[maybe_unused]]
     static bool hasSinglePair(std::string data)
     {
         auto outerPair = getOutermostParenthesis(data);
@@ -51,12 +55,14 @@ namespace parsers
         return (outerPair.front == innerPair.front && outerPair.rear == innerPair.rear);
     }
 
+    [[maybe_unused]]
     static bool hasNoPairs(std::string data)
     {
         auto outerPair = getOutermostParenthesis(data);
         return (outerPair.front == std::string::npos) && (outerPair.rear == std::string::npos);
     }
 
+    [[maybe_unused]]
     static AllParenthesisLocations orderParenthesisLocations(AllParenthesisLocations locations)
     {
         std::vector<ParenthesisLocations> locationsCopy = locations.pairs;
@@ -66,6 +72,7 @@ namespace parsers
         return {.pairs = locationsCopy};
     }
 
+    [[maybe_unused]]
     static AllParenthesisLocations getAllParenthesisLocations(std::string data)
     {
         std::vector<std::size_t> openings = {};

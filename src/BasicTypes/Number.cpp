@@ -56,7 +56,7 @@ void Number::operator=(const double val)
 
 void Number::operator<<(std::ostream& stream)
 {
-    stream << (_isNull ? "NIL" : std::to_string(_value));
+    stream << (_isNull ? "()" : std::to_string(_value));
 }
 
 double Number::get() const
@@ -66,7 +66,7 @@ double Number::get() const
 
 std::string Number::str()
 {
-    return  (_isNull ? "NIL" : std::to_string(_value));
+    return  (_isNull ? "()" : std::to_string(_value));
 }
 
 bool Number::isNumber(const std::string& text)

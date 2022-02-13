@@ -54,18 +54,18 @@ Conditional::operator bool() const
 
 bool Conditional::isConditional(const std::string& source)
 {
-    return (source == "T" || source == "NIL");
+    return (source == "T" || source == "()");
 }
 
 
 void Conditional::operator<<(std::ostream& stream)
 {
-    stream << (_val ? "T" : "NIL");
+    stream << (_val ? "T" : "()");
 }
 
 std::string Conditional::str()
 {
-    return (_val ? "T" : "NIL");
+    return (_val ? "T" : "()");
 }
 
 bool Conditional::parseConditional(const std::string& source)
@@ -78,7 +78,7 @@ bool Conditional::parseConditional(const std::string& source)
     {
         return (List(source).size() > 0);
     }
-    else if(source == "T" || source == "NIL")
+    else if(source == "T" || source == "()")
     {
         return (source == "T");
     }

@@ -14,9 +14,12 @@ namespace output
     class Debug
     {
     public:
+        static bool useDebug;
+
         static inline void debugLog(const std::string& caller, const std::string& message)
         {
-            std::cout << "\033[33m[ " << caller << " ]: " << message << "\033[0m" << std::endl;
+            if(useDebug)
+                std::cout << "\033[33m[ " << caller << " ]: " << message << "\033[0m" << std::endl;
         }
     };
 }
