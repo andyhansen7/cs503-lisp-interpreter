@@ -28,7 +28,6 @@ namespace interpreters
     private:
         std::unique_ptr<parsers::Parser> _parser;
         std::string _filePath;
-        std::ifstream& _instream;
         std::ostream& _outstream;
     };
 }

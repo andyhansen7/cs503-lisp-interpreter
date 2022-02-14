@@ -9,10 +9,9 @@
 
 using namespace interpreters;
 
-FileReadInterpreter(const std::string& filePath, std::ostream& outputStream)
+FileReadInterpreter::FileReadInterpreter(const std::string& filePath, std::ostream& outputStream)
         : _filePath(filePath), _outstream(outputStream)
 {
-    _instream = std::ifstream(_filePath, std::ifstream::in);
     _parser = std::make_unique<parsers::Parser>();
 }
 
@@ -21,29 +20,31 @@ int FileReadInterpreter::start()
     _outstream << "File Based LISP Interpreter by Andy Hansen\nCS503-001 Spring 2022\n"
                << "Running script from file " << _filePath << std::endl;
 
+    std::ifstream file;
+    file.open(_filePath);
+
     while(true)
     {
-        std::string userInput = "";
+        std::string line = "";
         std::vector<std::string> result;
-        std::string prompt = "> ";
         bool exception = false;
 
         // Load line from user
-        _outstream << prompt;
-        std::getline(_instream, userInput);
+        std::getline(file, line);
 
-        if(userInput == "(exit)")
+        if(line == "(exit)" || line.empty())
         {
+            file.close();
             return 0;
         }
 
         try
         {
-            result = _parser->parse(userInput);
+            result = _parser->parse(line);
         }
         catch(std::exception e)
         {
-            _outstream << "\033[31m" << "Invalid command: " << userInput << std::endl << '\t' << e.what() << "\033[0m" << std::endl;
+            _outstream << "\033[31m" << "Invalid command: " << line << std::endl << '\t' << e.what() << "\033[0m" << std::endl;
             exception = true;
         }
         if(!exception)

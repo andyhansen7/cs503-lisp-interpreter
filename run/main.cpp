@@ -43,11 +43,11 @@ int main(int argc, char** argv)
             {
                 std::cout << "Command Line LISP Interpreter by Andy Hansen\nCS503-001 Spring 2022\n\n"
                           << "Arguments: \n"
-                          << "\t-i: Set input file"
-                          << "\t-d: Enable debug output"
-                          << "\t--help: You already know what that does";
+                          << "\t-i: Set input file\n"
+                          << "\t-d: Enable debug output\n"
+                          << "\t--help: You already know what that does\n";
 
-                while(true) {}
+                return 0;
             }
         }
     }
