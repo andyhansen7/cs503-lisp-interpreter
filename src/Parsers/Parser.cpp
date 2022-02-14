@@ -16,7 +16,7 @@ Parser::Parser()
 std::vector<std::string> Parser::parse(const std::string& text)
 {
     debug("Starting parse with " + text);
-    std::string data = text;;
+    std::string data = text;
     const bool singlePair = hasSinglePair(data);
     std::size_t numberOfListOperands = 0;
 
@@ -24,7 +24,7 @@ std::vector<std::string> Parser::parse(const std::string& text)
     if(hasNoPairs(data))
     {
         debug("Nothing to evaluate!");
-        return { "\'data\'" };
+        return { "\'" + data + "\'" };
     }
 
     // Begin routine call
