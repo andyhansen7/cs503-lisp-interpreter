@@ -226,7 +226,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     debug("cleaned data to " + cleaned);
 
     // Check that param is not list
-    if(List::isList(data, _userVariables))
+    if(List::isList(data, _userVariables, _userFunctions))
     {
         debug("Data was list! Returning " + cleaned);
         return {.data = data, .dataWasList = true};
@@ -258,7 +258,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         {
             valType = std::make_shared<Number>(val);
         }
-        else if(List::isList(val, _userVariables))
+        else if(List::isList(val, _userVariables, _userFunctions))
         {
             valType = std::make_shared<List>(val);
         }
@@ -359,7 +359,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         {
             basicType = std::make_shared<Number>(ops.operands[0]);
         }
-        else if(List::isList(ops.operands[0], _userVariables))
+        else if(List::isList(ops.operands[0], _userVariables, _userFunctions))
         {
             basicType = std::make_shared<List>(ops.operands[0]);
         }
@@ -403,7 +403,7 @@ ArithmeticParameterType Parser::getArithmeticParameterType(const OperatorOperand
             debug("Adding type Number to return list with value " + it);
             params.numberOperands.push_back(Number(it));
         }
-        else if(List::isList(it, _userVariables))
+        else if(List::isList(it, _userVariables, _userFunctions))
         {
             debug("Adding type List to return list with value " + it);
             params.listOperands.push_back(List(it));

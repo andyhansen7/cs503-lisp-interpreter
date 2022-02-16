@@ -9,6 +9,7 @@
 #include <BasicTypes/Number.hpp>
 #include <BasicTypes/IBasicType.hpp>
 #include <Output/ErrorHandle.hpp>
+#include <Parsers/Types.hpp>
 
 // STL
 #include <string>
@@ -62,8 +63,8 @@ namespace basic_types
         void push(const List& list);
         std::string car();
         std::string cdr();
-        static bool isList(const std::string& text, const std::map<std::string, std::shared_ptr<IBasicType>> userVars);
-        static bool allAreLists(std::vector<std::string> sources, const std::map<std::string, std::shared_ptr<IBasicType>> userVars);
+        static bool isList(const std::string& text, const std::map<std::string, std::shared_ptr<IBasicType>> userVars, std::map<std::string, parsers::FunctionDefinition> userFuncs);
+        static bool allAreLists(std::vector<std::string> sources, const std::map<std::string, std::shared_ptr<IBasicType>> userVars, std::map<std::string, parsers::FunctionDefinition> userFuncs);
     private:
         std::vector<ListItem> _contents;
 

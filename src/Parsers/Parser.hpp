@@ -14,6 +14,7 @@
 #include <Parsers/OperatorOperands.hpp>
 #include <Parsers/ParenthesisUtils.hpp>
 #include <Functions/Functions.hpp>
+#include <Parsers/Types.hpp>
 
 // STL
 #include <string>
@@ -26,18 +27,6 @@ using namespace parsers;
 
 namespace parsers
 {
-    typedef struct evaluation_return
-    {
-        std::string data = "";
-        bool dataWasList = false;
-    } EvaluationReturn;
-
-    typedef struct function_definition
-    {
-        std::vector<std::string> params;
-        std::string expression = "";
-    } FunctionDefinition;
-
     class Parser
     {
     public:

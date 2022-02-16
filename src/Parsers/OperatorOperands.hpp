@@ -18,12 +18,6 @@ using namespace basic_types;
 
 namespace parsers
 {
-    typedef struct operator_operands
-    {
-        std::string operation;
-        std::vector<std::string> operands;
-    } OperatorOperands;
-
     class OperatorOperandsUtil
     {
     public:
@@ -47,7 +41,7 @@ namespace parsers
             for(const auto& p : locations.pairs)
             {
                 std::string list = inputText.substr(p.front, (p.rear - p.front + 1));
-                if(list == "()" || list == "( )" || List::isList(list, {}))
+                if(list == "()" || list == "( )" || List::isList(list, {}, {}))
                 {
                     listOps.push_back(list);
                     debug("OperationOperands found list" + list);
