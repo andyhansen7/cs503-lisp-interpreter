@@ -42,7 +42,7 @@ int FileReadInterpreter::start()
         {
             result = _parser->parse(line);
         }
-        catch(std::exception e)
+        catch(const std::exception& e)
         {
             _outstream << "\033[31m" << "Invalid command: " << line << std::endl << '\t' << e.what() << "\033[0m" << std::endl;
             exception = true;

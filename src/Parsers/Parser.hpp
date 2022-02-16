@@ -32,6 +32,12 @@ namespace parsers
         bool dataWasList = false;
     } EvaluationReturn;
 
+    typedef struct function_definition
+    {
+        std::vector<std::string> params;
+        std::string expression = "";
+    } FunctionDefinition;
+
     class Parser
     {
     public:
@@ -44,6 +50,7 @@ namespace parsers
         friend class List;
     private:
         std::map<std::string, std::shared_ptr<IBasicType>> _userVariables;
+        std::map<std::string, FunctionDefinition> _userFunctions;
 
         // Evaluate an object by applying an operation and returning a string
         EvaluationReturn evaluate(const std::string& data);
@@ -53,6 +60,9 @@ namespace parsers
 
         // Evaluate user variables in operands
         std::vector<std::string> evaluateUserVars(std::vector<std::string> operands);
+
+        // Evaluate function calls in operands
+        std::string evaluateUserFunctions(const std::string& expression);
 
         // Error log call
         static void error(const std::string& message);

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/cs503-lisp-interpreter.iml" filepath="$PROJECT_DIR$/.idea/cs503-lisp-interpreter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/lisp-interpreter.iml" filepath="$PROJECT_DIR$/.idea/lisp-interpreter.iml" />
     </modules>
   </component>
 </project>

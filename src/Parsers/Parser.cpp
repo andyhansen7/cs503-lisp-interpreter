@@ -30,7 +30,12 @@ std::vector<std::string> Parser::parse(const std::string& text)
     // Begin routine call
     std::string beginTest = "";
     std::string whileTest = "";
-    if(data.length() > 6)
+    std::string defineTest = "";
+    if(data.length() > 7)
+    {
+        defineTest = data.substr(1, 6);
+    }
+    else if(data.length() > 6)
     {
         beginTest = data.substr(1, 5);
         whileTest = data.substr(1, 5);
@@ -107,11 +112,70 @@ std::vector<std::string> Parser::parse(const std::string& text)
         return returnStrings;
     }
 
+    else if(defineTest == "define")
+    {
+        debug("define called");
+        std::string copy = data;
+
+        // Load parenthesis pairs
+        auto parenthesisPairs = getAllParenthesisLocations(copy);
+
+        if(parenthesisPairs.pairs.size() != 3)
+        {
+            error("Define should contain arguments and expression enclosed by parenthesis!");
+        }
+
+        std::string functionName = "";
+        std::string paramList = "";
+        std::string expression = "";
+
+        // Parse argument list and expression
+        paramList = copy.substr(parenthesisPairs.pairs[1].front, (parenthesisPairs.pairs[1].rear - parenthesisPairs.pairs[1].front + 1));
+        expression = copy.substr(parenthesisPairs.pairs[0].front, (parenthesisPairs.pairs[0].rear - parenthesisPairs.pairs[0].front + 1));
+        boost::replace_first(copy, expression, "");
+        boost::replace_first(copy, paramList, "");
+
+        // Parse function name, this is the easiest way to do it
+        auto ops = OperatorOperandsUtil::getOperatorOperands(copy);
+
+        if(ops.operands.size() != 1)
+        {
+            error("Define given an inappropriate number of parameters!");
+        }
+        functionName = ops.operands[0];
+
+        debug("Defining function\'" + functionName +"\' with params " + paramList + " and expression " + expression);
+
+        if(_userFunctions.find(functionName) != _userFunctions.end())
+        {
+            error("Cannot define function " + functionName + ", it was already defined!");
+        }
+        else
+        {
+            // Separate args from string
+            std::vector<std::string> params;
+            auto p = OperatorOperandsUtil::getOperatorOperands(paramList);
+            if(p.operation.length() != 0 && p.operation != " ")
+                params.push_back(p.operation);
+            for(const auto& s : p.operands)
+            {
+                debug("Adding parameter \'" + s + "\'");
+                if(s.length() != 0 && s != " ")
+                    params.push_back(s);
+            }
+
+            _userFunctions.emplace(functionName, FunctionDefinition({.params = params, .expression = expression}));
+        }
+
+        return { "OK" };
+    }
+
     // Single pair of parenthesis remaining, evaluate expression at face value and return
     else if(singlePair)
     {
         debug("Single atom object, evaluating and returning...");
-        return { data, (evaluate(data)).data };
+        std::string functionsEvaluated = evaluateUserFunctions(data);
+        return { data, (evaluate(functionsEvaluated)).data };
     }
 
     // Multiple pairs of parenthesis remaining, got to be a little smarter
@@ -119,31 +183,6 @@ std::vector<std::string> Parser::parse(const std::string& text)
     {
         // Load parenthesis pairs
         auto parenthesisPairs = getAllParenthesisLocations(data);
-
-//        // Iterate through pairs and evaluate
-//        for(std::size_t index = 0; index < parenthesisPairs.pairs.size(); index++)
-//        {
-//            if(parenthesisPairs.pairs.size() == (numberOfListOperands + 1))   // Add one for outer parentheses
-//            {
-//                debug("Down to single pair! Returning single evaluation...");
-//                return { data, (evaluate(data)).data };
-//            }
-//
-//            std::string substring = data.substr(parenthesisPairs.pairs.at(index).front, (parenthesisPairs.pairs.at(index).rear - parenthesisPairs.pairs.at(index).front + 1));
-//            debug("Current substring is " + substring);
-//
-//            auto evaluated = evaluate(substring);
-//            if(evaluated.dataWasList)
-//            {
-//                debug("Substring is list! Moving onto next loop");
-//                numberOfListOperands++;
-//                continue;
-//            }
-//
-//            debug("Evaluation returned " + evaluated.data);
-//            boost::replace_all(data, substring, evaluated.data);
-//            debug("Data is now " + data);
-//        }
 
         // Iterate through pairs and evaluate
         for(std::size_t index = 0; index < parenthesisPairs.pairs.size(); index++)
@@ -157,7 +196,8 @@ std::vector<std::string> Parser::parse(const std::string& text)
             std::string substring = data.substr(parenthesisPairs.pairs.at(index).front, (parenthesisPairs.pairs.at(index).rear - parenthesisPairs.pairs.at(index).front + 1));
             debug("Current substring is " + substring);
 
-            auto evaluated = evaluate(substring);
+            auto functionsEvaluated = evaluateUserFunctions(substring);
+            auto evaluated = evaluate(functionsEvaluated);
             if(evaluated.dataWasList)
             {
                 debug("Substring is list! Moving onto next loop");
@@ -420,6 +460,50 @@ std::vector<std::string> Parser::evaluateUserVars(std::vector<std::string> opera
     }
 
     return evaluated;
+}
+
+std::string Parser::evaluateUserFunctions(const std::string& expression)
+{
+    // Parse operator and operands from expression
+    auto ops = OperatorOperandsUtil::getOperatorOperands(expression);
+
+    if(_userFunctions.find(ops.operation) != _userFunctions.end())
+    {
+        // Call function and return result as string
+        FunctionDefinition fun = _userFunctions.at(ops.operation);
+        std::string exp = fun.expression;
+
+        if(ops.operands.size() != fun.params.size())
+        {
+            debug("About to error!");
+            std::string funParams = "", givenParams = "";
+            for(const auto& it : ops.operands) { givenParams += it; givenParams += " "; }
+            for(const auto& it : fun.params) { funParams += it; funParams += " "; }
+            givenParams += ", "; givenParams += std::to_string(ops.operands.size());
+            funParams += ", "; funParams += std::to_string(fun.params.size());
+            debug("Params for function: " + funParams);
+            debug("Params given: " + givenParams);
+
+            error("Function call to " + ops.operation + " provided the wrong number of arguments!");
+            return "";
+        }
+        else
+        {
+            debug("Expression before evaluation: " + exp);
+            for(std::size_t i = 0; i < ops.operands.size(); i++)
+            {
+                boost::replace_all(exp, fun.params[i], ops.operands[i]);
+            }
+            debug("Expression after evaluation: " + exp);
+
+            return exp;
+        }
+    }
+    else
+    {
+        // Return original data
+        return expression;
+    }
 }
 
 void Parser::error(const std::string& message)
