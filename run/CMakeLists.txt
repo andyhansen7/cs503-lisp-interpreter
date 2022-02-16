@@ -1,11 +1,11 @@
 add_executable(
-    Main
+    arhansen-lisp-interpreter
 
     main.cpp
 )
 
 target_link_libraries(
-    Main
+    arhansen-lisp-interpreter
 
     Parsers
     Functions

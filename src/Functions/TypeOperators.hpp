@@ -96,6 +96,9 @@ namespace functions
             isReserved |= (data == "list?");
             isReserved |= (data == "null?");
             isReserved |= (data == "symbol?");
+            isReserved |= (data == "while");
+            isReserved |= (data == "begin");
+            isReserved |= (data == "define");
 
             return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional((isReserved ? "T" : "()"))));
         }

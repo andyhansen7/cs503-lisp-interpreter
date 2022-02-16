@@ -41,3 +41,6 @@ cmake-build-debug/*
 
 # cmake files
 /src/cmake-build-debug/
+
+# Executables
+arhansen-lisp-interpreter
