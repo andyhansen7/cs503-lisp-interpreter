@@ -40,7 +40,7 @@ void List::operator<<(std::ostream& stream)
 {
     stream << str();
 }
-std::string List::str()
+std::string List::str() const
 {
     std::string ret = "(";
     for(auto it : _contents)
@@ -115,20 +115,22 @@ bool List::isList(const std::string& text, const std::map<std::string, std::shar
     const std::string delim = " ";
     std::vector<std::string> textPieces;
 
-    if(inputText == "()" || inputText == "( )")
+    if(Null::isNull(inputText))
     {
-        output::Debug::debugLog("IsList", "Returning true for empty list: " + inputText);
+        output::Debug::debugLog("IsList", "Returning true for null: " + inputText);
         return true;
     }
 
-    bool resultIsList = (inputText[0] == '(') && (inputText[inputText.length() - 1] = ')');
+    bool containsOpen = (inputText[0] == '(');
+    bool containsClose = (inputText[inputText.length() - 1] == ')');
+    bool resultIsList = containsOpen && containsClose;
 
     // Remove initial and end parenthesis
     boost::replace_first(inputText, "(", "");
     boost::replace_last(inputText, ")", "");
 
     // Check that string is not a single entry
-    if(inputText.find(' ') == std::string::npos)
+    if(inputText.find(' ') == std::string::npos && resultIsList)
     {
         return Number::isNumber(inputText);
     }
@@ -146,6 +148,8 @@ bool List::isList(const std::string& text, const std::map<std::string, std::shar
 
     for(const auto& it : allOperands)
     {
+        if(it.length() == 0) continue;
+
         output::Debug::debugLog("IsList", "Testing " + it);
         bool itValid =  (functions::arithmeticFunctions.find(it) == functions::arithmeticFunctions.end()) &&
                         (functions::listFunctions.find(it) == functions::listFunctions.end()) &&
@@ -155,8 +159,13 @@ bool List::isList(const std::string& text, const std::map<std::string, std::shar
                         (functions::typeFunctions.find(it) == functions::typeFunctions.end()) &&
                         (userVars.find(it) == userVars.end()) &&
                         (userFuncs.find(it) == userFuncs.end()) &&
-                        (Number::isNumber(it) ||
-                         isList(it, userVars, userFuncs));
+                        (Null::isNull(it) ||
+                        Number::isNumber(it));
+
+        if(itValid && (it.find('(') != std::string::npos) && (it.find(')') != std::string::npos))
+        {
+            itValid &= isList(it, userVars, userFuncs);
+        }
 
         output::Debug::debugLog("IsList", (itValid ? "Found valid list item: " + it : "Invalid list item: " + it));
         resultIsList &= itValid;

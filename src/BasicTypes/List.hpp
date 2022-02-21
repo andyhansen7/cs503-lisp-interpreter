@@ -55,8 +55,7 @@ namespace basic_types
         void operator=(const std::string& source);
         void operator<<(std::ostream& stream) override;
         std::string type() const override { return "LIST"; }
-        bool isNull() const override { return _contents.size() == 0; }
-        std::string str() override;
+        std::string str() const override;
 
         int size() const;
         void push(const Number& number);

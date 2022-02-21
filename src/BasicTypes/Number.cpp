@@ -8,31 +8,25 @@ using namespace basic_types;
 
 Number::Number(const std::string& source)
 {
-    if(isNumber(source))
+    if(isNumber(source) && !Null::isNull(source))
     {
         _value = std::stof(source);
-        _isNull = false;
     }
-    else
-    {
-        _isNull = true;
-    }
+    else _value = 0.0f;
 }
 
 Number::Number(const int value)
 {
     _value = static_cast<double>(value);
-    _isNull = false;
 }
 
 Number::Number(const double value)
 {
     _value = value;
-    _isNull = false;
 }
 
 Number::Number()
-    : _value(0.0f), _isNull(true)
+    : _value(0.0f)
 {
 
 }
@@ -40,23 +34,20 @@ Number::Number()
 void Number::operator=(const Number& source)
 {
     _value = source._value;
-    _isNull = false;
 }
 
 void Number::operator=(const int val)
 {
     _value = static_cast<double>(val);
-    _isNull = false;
 }
 void Number::operator=(const double val)
 {
     _value = val;
-    _isNull = false;
 }
 
 void Number::operator<<(std::ostream& stream)
 {
-    stream << (_isNull ? "()" : std::to_string(_value));
+    stream << std::to_string(_value);
 }
 
 double Number::get() const
@@ -64,13 +55,18 @@ double Number::get() const
     return _value;
 }
 
-std::string Number::str()
+std::string Number::str() const
 {
-    return  (_isNull ? "()" : std::to_string(_value));
+    return std::to_string(_value);
 }
 
 bool Number::isNumber(const std::string& text)
 {
+    if(Null::isNull(text))
+    {
+        return true;
+    }
+
     try
     {
         std::stof(text);

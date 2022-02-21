@@ -15,8 +15,7 @@ namespace basic_types
     public:
         virtual void operator<<(std::ostream& stream) = 0;
         virtual std::string type() const = 0;
-        virtual bool isNull() const = 0;
-        virtual std::string str() = 0;
+        virtual std::string str() const = 0;
     };
 }
 

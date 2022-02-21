@@ -252,7 +252,7 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
         if(Conditional::isConditional(val))
         {
-            valType = std::make_shared<Number>(val);
+            valType = std::make_shared<Conditional>(val);
         }
         else if(Number::isNumber(val))
         {
@@ -330,8 +330,15 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         // Cast string objects to condition and expressions
         auto parameters = getConditionalParameterType(ops);
 
-        auto result = conditionalFunctions.at(ops.operation)(parameters);
-        return {.data = result->str(), .dataWasList = false};
+        auto exp = conditionalFunctions.at(ops.operation)(parameters)->str();
+        if(Number::isNumber(exp))
+            return {.data = Number(exp).str(), .dataWasList = false};
+        else if(List::isList(exp, _userVariables, _userFunctions))
+            return {.data = List(exp).str(), .dataWasList = false};
+        else if(Conditional::isConditional(exp))
+            return {.data = Conditional(exp).str(), .dataWasList = false};
+        else
+            return {.data = exp, .dataWasList = false};
     }
 
     else if(printFunctions.find(ops.operation) != printFunctions.end())

@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 using namespace basic_types;
 
@@ -31,6 +33,16 @@ namespace parsers
             std::size_t pos = 0;
             bool operationSet = false;
 
+            // Stop if empty list
+            if(data.length() < 1 || data == " ")
+            {
+                return {.operation = "", .operands = {}};
+            }
+            else if(Null::isNull(data))
+            {
+                return {.operation = "", .operands = {}};
+            }
+
             // Remove initial and end parenthesis
             boost::replace_first(inputText, "(", "");
             boost::replace_last(inputText, ")", "");
@@ -40,9 +52,14 @@ namespace parsers
             std::reverse(locations.pairs.begin(), locations.pairs.end());
             for(const auto& p : locations.pairs)
             {
-                std::string list = inputText.substr(p.front, (p.rear - p.front + 1));
-                if(list == "()" || list == "( )" || List::isList(list, {}, {}))
+                // Extract lists
+                if(p.front + 1 == p.rear)
                 {
+                    continue;
+                }
+                else
+                {
+                    std::string list = inputText.substr(p.front, (p.rear - p.front + 1));
                     listOps.push_back(list);
                     debug("OperationOperands found list" + list);
                     inputText.replace(p.front, (p.rear - p.front + 1), "");
@@ -70,6 +87,11 @@ namespace parsers
                         ops.operands.push_back(operand);
                         debug("OperationOperands found operand \'" + operand + "\'");
                         inputText.erase(0, pos + delim.length());
+                    }
+                    else
+                    {
+                        // Erase space
+                        inputText.erase(0, 1);
                     }
                 }
             }

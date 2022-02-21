@@ -15,10 +15,10 @@
 #include <memory>
 
 using namespace parsers;
+using namespace basic_types;
 
 namespace functions
 {
-
     class TypeOperations
     {
     public:
@@ -46,32 +46,10 @@ namespace functions
         {
             if(ops.operands.size() != 1) error("isNull can only test one argument!");
 
-            if(Conditional::isConditional(ops.operands[0]))
-            {
-                if(Conditional(ops.operands[0]).isNull())
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
-                else
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
-            }
-            else if(Number::isNumber(ops.operands[0]))
-            {
-                if(Number(ops.operands[0]).isNull())
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
-                else
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
-            }
-            else if(List::isList(ops.operands[0], {}, {}))
-            {
-                if(List(ops.operands[0]).isNull())
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
-                else
-                    return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
-            }
+            if(Null::isNull(ops.operands[0]))
+                return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("T")));
             else
-            {
-                error("isNull couldn't convert data to List, Number or Conditional: " + ops.operands[0]);
                 return std::make_shared<ConditionalReturnType>(ConditionalReturnType(Conditional("()")));
-            }
         }
 
         static std::shared_ptr<ConditionalReturnType> isReserved(OperatorOperands ops)

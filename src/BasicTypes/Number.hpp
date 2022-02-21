@@ -7,6 +7,7 @@
 
 // src
 #include <BasicTypes/IBasicType.hpp>
+#include <BasicTypes/Null.hpp>
 
 // STL
 #include <string>
@@ -30,15 +31,13 @@ namespace basic_types
         void operator=(const double val);
         void operator<<(std::ostream& stream) override;
         std::string type() const override { return "NUMBER"; }
-        bool isNull() const override { return _isNull; }
-        std::string str() override;
+        std::string str() const override;
         double get() const;
 
 
         static bool isNumber(const std::string& text);
     private:
         double _value;
-        bool _isNull;
     };
 }
 

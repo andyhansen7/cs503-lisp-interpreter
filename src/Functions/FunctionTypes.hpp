@@ -9,6 +9,7 @@
 #include <BasicTypes/List.hpp>
 #include <BasicTypes/Number.hpp>
 #include <BasicTypes/Conditional.hpp>
+#include <BasicTypes/Null.hpp>
 
 // STl
 #include <vector>
