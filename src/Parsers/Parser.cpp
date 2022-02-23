@@ -35,7 +35,8 @@ std::vector<std::string> Parser::parse(const std::string& text)
     {
         defineTest = data.substr(1, 6);
     }
-    else if(data.length() > 6)
+
+    if(data.length() > 6)
     {
         beginTest = data.substr(1, 5);
         whileTest = data.substr(1, 5);
@@ -70,6 +71,8 @@ std::vector<std::string> Parser::parse(const std::string& text)
             auto parsed = parse(s);
             for(const auto& t : parsed)
             {
+//                if(t == "OK") continue;
+
                 returnStrings.push_back(t);
             }
         }

@@ -151,5 +151,46 @@ namespace
         EXPECT_EQ(ret[0], arg);
         EXPECT_EQ(ret[1], "2.000000");
     }
+
+    TEST(SetTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg = "(set x 1.23)";
+        std::string arg2 = "(+ x x)";
+        auto ret = p.parse(arg);
+        auto ret2 = p.parse(arg2);
+
+        EXPECT_EQ(ret.size(), 2);
+        EXPECT_EQ(ret[0], arg);
+        EXPECT_EQ(ret[1], "OK");
+        EXPECT_EQ(ret2.size(), 2);
+        EXPECT_EQ(ret2[0], arg2);
+        EXPECT_EQ(ret2[1], "2.460000");
+    }
+
+    TEST(DefineTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg = "(define x (a) (print a))";
+        std::string arg2 = "(x 1.23)";
+        auto ret = p.parse(arg);
+        auto ret2 = p.parse(arg2);
+
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "OK");
+        EXPECT_EQ(ret2.size(), 2);
+        EXPECT_EQ(ret2[0], arg2);
+        EXPECT_EQ(ret2[1], "1.230000");
+    }
+
+    TEST(BeginTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg = "(begin (print 1) (print 2))";
+        auto ret = p.parse(arg);
+
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "OK");
+    }
 }
 
