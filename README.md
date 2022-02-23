@@ -31,3 +31,8 @@
 >-d: Enable debugging script\
 >-i: Set input filepath (relative to source directory)\
 >--help: Pretty much the same as this
+
+### Testing
+Unit tests exist in the /tests directory, in UnitTests.cpp. This file utilizes the GTest framework to unit test the codebase. 
+
+To run these tests for yourself, navigate to the build directory as above, and run the command ```ctest```. The test cases and outputs will be shown.
