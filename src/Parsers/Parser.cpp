@@ -178,7 +178,8 @@ std::vector<std::string> Parser::parse(const std::string& text)
     {
         debug("Single atom object, evaluating and returning...");
         std::string functionsEvaluated = evaluateUserFunctions(data);
-        return { data, (evaluate(functionsEvaluated)).data };
+//        return { data, (evaluate(functionsEvaluated)).data };
+        return { (evaluate(functionsEvaluated)).data };
     }
 
     // Multiple pairs of parenthesis remaining, got to be a little smarter
@@ -193,7 +194,8 @@ std::vector<std::string> Parser::parse(const std::string& text)
             if(parenthesisPairs.pairs.size() == (numberOfListOperands + 1))   // Add one for outer parentheses
             {
                 debug("Down to single pair! Returning single evaluation...");
-                return { data, (evaluate(data)).data };
+//                return { data, (evaluate(data)).data };
+                return { (evaluate(data)).data };
             }
 
             std::string substring = data.substr(parenthesisPairs.pairs.at(index).front, (parenthesisPairs.pairs.at(index).rear - parenthesisPairs.pairs.at(index).front + 1));
