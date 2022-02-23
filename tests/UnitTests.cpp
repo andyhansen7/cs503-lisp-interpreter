@@ -81,9 +81,8 @@ namespace
         std::string arg = "(+ 1 2 3)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "6.000000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "6.000000");
     }
 
     TEST(SubtractionTest, Success)
@@ -92,9 +91,8 @@ namespace
         std::string arg = "(- 10 1 3)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "6.000000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "6.000000");
     }
 
     TEST(MultiplicationTest, Success)
@@ -103,9 +101,8 @@ namespace
         std::string arg = "(* 1 2 3)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "6.000000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "6.000000");
     }
 
     TEST(DivisionTest, Success)
@@ -114,20 +111,18 @@ namespace
         std::string arg = "(/ 36 2 3)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "6.000000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "6.000000");
     }
 
     TEST(PrintTest, Success)
     {
         parsers::Parser p;
-        std::string arg = "(print (6))";
+        std::string arg = "(print 6)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "(6.000000)");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "6.000000");
     }
 
     TEST(IfTrueTest, Success)
@@ -136,9 +131,8 @@ namespace
         std::string arg = "(if T 1 2)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "1.000000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "1.000000");
     }
 
     TEST(IfFalseTest, Success)
@@ -147,9 +141,8 @@ namespace
         std::string arg = "(if () 1 2)";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "2.000000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "2.000000");
     }
 
     TEST(SetTest, Success)
@@ -160,12 +153,10 @@ namespace
         auto ret = p.parse(arg);
         auto ret2 = p.parse(arg2);
 
-        EXPECT_EQ(ret.size(), 2);
-        EXPECT_EQ(ret[0], arg);
-        EXPECT_EQ(ret[1], "OK");
-        EXPECT_EQ(ret2.size(), 2);
-        EXPECT_EQ(ret2[0], arg2);
-        EXPECT_EQ(ret2[1], "2.460000");
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "OK");
+        EXPECT_EQ(ret2.size(), 1);
+        EXPECT_EQ(ret2[0], "2.460000");
     }
 
     TEST(DefineTest, Success)
@@ -178,9 +169,8 @@ namespace
 
         EXPECT_EQ(ret.size(), 1);
         EXPECT_EQ(ret[0], "OK");
-        EXPECT_EQ(ret2.size(), 2);
-        EXPECT_EQ(ret2[0], arg2);
-        EXPECT_EQ(ret2[1], "1.230000");
+        EXPECT_EQ(ret2.size(), 1);
+        EXPECT_EQ(ret2[0], "1.230000");
     }
 
     TEST(BeginTest, Success)
@@ -189,8 +179,9 @@ namespace
         std::string arg = "(begin (print 1) (print 2))";
         auto ret = p.parse(arg);
 
-        EXPECT_EQ(ret.size(), 1);
-        EXPECT_EQ(ret[0], "OK");
+        EXPECT_EQ(ret.size(), 2);
+        EXPECT_EQ(ret[0], "1.000000");
+        EXPECT_EQ(ret[1], "2.000000");
     }
 }
 
