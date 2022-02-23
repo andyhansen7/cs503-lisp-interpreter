@@ -183,5 +183,55 @@ namespace
         EXPECT_EQ(ret[0], "1.000000");
         EXPECT_EQ(ret[1], "2.000000");
     }
+
+    TEST(WhileTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg1 = "(set var 0)";
+        std::string arg2 = "(while (< var 3) (begin (print var) (set var (+ var 1))))";
+        auto ret1 = p.parse(arg1);
+        auto ret2 = p.parse(arg2);
+
+        EXPECT_EQ(ret1.size(), 1);
+        EXPECT_EQ(ret1[0], "OK");
+
+        EXPECT_EQ(ret2.size(), 6);
+        EXPECT_EQ(ret2[0], "0.000000");
+        EXPECT_EQ(ret2[1], "OK");
+        EXPECT_EQ(ret2[2], "1.000000");
+        EXPECT_EQ(ret2[3], "OK");
+        EXPECT_EQ(ret2[4], "2.000000");
+        EXPECT_EQ(ret2[5], "OK");
+    }
+
+    TEST(ConsTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg = "(cons 1 2)";
+        auto ret = p.parse(arg);
+
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "(1.000000 2.000000)");
+    }
+
+    TEST(CarTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg = "(car (1 2))";
+        auto ret = p.parse(arg);
+
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "1.000000");
+    }
+
+    TEST(CdrTest, Success)
+    {
+        parsers::Parser p;
+        std::string arg = "(cdr (1 2))";
+        auto ret = p.parse(arg);
+
+        EXPECT_EQ(ret.size(), 1);
+        EXPECT_EQ(ret[0], "(2.000000)");
+    }
 }
 
