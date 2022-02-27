@@ -44,3 +44,5 @@ cmake-build-debug/*
 
 # Executables
 arhansen-lisp-interpreter
+UnitTests
+
