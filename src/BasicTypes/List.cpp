@@ -126,8 +126,15 @@ bool List::isList(const std::string& text, const std::map<std::string, std::shar
     bool resultIsList = containsOpen && containsClose;
 
     // Remove initial and end parenthesis
-    boost::replace_first(inputText, "(", "");
-    boost::replace_last(inputText, ")", "");
+    if(resultIsList)
+    {
+        inputText.erase(0,1);
+        inputText.resize(inputText.size() - 1);
+    }
+    else
+    {
+        return false;
+    }
 
     // Check that string is not a single entry
     if(inputText.find(' ') == std::string::npos && resultIsList)

@@ -44,26 +44,43 @@ namespace parsers
             }
 
             // Remove initial and end parenthesis
-            boost::replace_first(inputText, "(", "");
-            boost::replace_last(inputText, ")", "");
+//            boost::replace_first(inputText, "(", "");
+//            boost::replace_last(inputText, ")", "");
+            if(inputText[0] == '(')
+                inputText.erase(0,1); // HERE
 
             // Remove list elements
             auto locations = getAllParenthesisLocations(inputText);
+            std::size_t numPairs = locations.pairs.size();
             std::reverse(locations.pairs.begin(), locations.pairs.end());
-            for(const auto& p : locations.pairs)
+//            for(const auto& p : locations.pairs)
+//            {
+//                // Extract lists
+//                if(p.front + 1 == p.rear)
+//                {
+//                    continue;
+//                }
+//                else
+//                {
+//                    std::string list = inputText.substr(p.front, (p.rear - p.front + 1));
+//                    listOps.push_back(list);
+//                    debug("OperatorOperands found list " + list);
+//                    inputText.replace(p.front, (p.rear - p.front + 1), "");
+//
+//                    locations = getAllParenthesisLocations(inputText);
+//                    std::reverse(locations.pairs.begin(), locations.pairs.end());
+//                }
+//            }
+            while(numPairs != 0)
             {
-                // Extract lists
-                if(p.front + 1 == p.rear)
-                {
-                    continue;
-                }
-                else
-                {
-                    std::string list = inputText.substr(p.front, (p.rear - p.front + 1));
-                    listOps.push_back(list);
-                    debug("OperationOperands found list" + list);
-                    inputText.replace(p.front, (p.rear - p.front + 1), "");
-                }
+                std::string list = inputText.substr(locations.pairs[0].front, (locations.pairs[0].rear - locations.pairs[0].front + 1));
+                listOps.push_back(list);
+                debug("OperatorOperands found list " + list);
+                inputText.replace(locations.pairs[0].front, (locations.pairs[0].rear - locations.pairs[0].front + 1), "");
+
+                locations = getAllParenthesisLocations(inputText);
+                std::reverse(locations.pairs.begin(), locations.pairs.end());
+                numPairs = locations.pairs.size();
             }
             debug("Input text is now " + inputText);
 
@@ -75,7 +92,7 @@ namespace parsers
                 if(!operationSet)
                 {
                     ops.operation = inputText.substr(0, pos);
-                    debug("OperationOperands operation set to " + ops.operation);
+                    debug("OperatorOperands operation set to " + ops.operation);
                     inputText.erase(0, pos + delim.length());
                     operationSet = true;
                 }
@@ -85,7 +102,7 @@ namespace parsers
                     if(operand != " " && operand.length() > 0)
                     {
                         ops.operands.push_back(operand);
-                        debug("OperationOperands found operand \'" + operand + "\'");
+                        debug("OperatorOperands found operand \'" + operand + "\'");
                         inputText.erase(0, pos + delim.length());
                     }
                     else
@@ -100,7 +117,7 @@ namespace parsers
             if(inputText != " " && inputText.length() > 0)
             {
                 ops.operands.push_back(inputText);
-                debug("OperationOperands found operand \'" + inputText + "\'");
+                debug("OperatorOperands found operand \'" + inputText + "\'");
             }
 
             // Append lists

@@ -122,21 +122,24 @@ std::vector<std::string> Parser::parse(const std::string& text)
 
         // Load parenthesis pairs
         auto parenthesisPairs = getAllParenthesisLocations(copy);
+        std::reverse(parenthesisPairs.pairs.begin(), parenthesisPairs.pairs.end());
 
-        if(parenthesisPairs.pairs.size() != 3)
+        if(parenthesisPairs.pairs.size() < 3)
         {
             error("Define should contain arguments and expression enclosed by parenthesis!");
         }
 
-        std::string functionName = "";
-        std::string paramList = "";
-        std::string expression = "";
+        std::string functionName;
+        std::string paramList;
+        std::string expression;
 
         // Parse argument list and expression
         paramList = copy.substr(parenthesisPairs.pairs[1].front, (parenthesisPairs.pairs[1].rear - parenthesisPairs.pairs[1].front + 1));
-        expression = copy.substr(parenthesisPairs.pairs[0].front, (parenthesisPairs.pairs[0].rear - parenthesisPairs.pairs[0].front + 1));
-        boost::replace_first(copy, expression, "");
-        boost::replace_first(copy, paramList, "");
+        expression = copy.substr(parenthesisPairs.pairs[2].front, (parenthesisPairs.pairs[2].rear - parenthesisPairs.pairs[2].front + 1));
+
+
+        boost::replace_first(copy, " " + expression, "");
+        boost::replace_first(copy, " " + paramList, "");
 
         // Parse function name, this is the easiest way to do it
         auto ops = OperatorOperandsUtil::getOperatorOperands(copy);
