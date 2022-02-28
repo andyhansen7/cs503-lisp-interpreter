@@ -17,7 +17,10 @@ namespace basic_types
     {
     public:
         Null() {}
+        Null(const std::string&) {}
         ~Null() = default;
+
+        void operator<<(std::ostream& stream) override { stream << std::string("()"); }
         std::string type() const override { return "NULL"; }
         std::string str() const override { return "()"; }
         static bool isNull(const std::string& data) { return data == "()"; }

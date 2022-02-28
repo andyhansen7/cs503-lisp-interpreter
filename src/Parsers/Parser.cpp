@@ -71,8 +71,6 @@ std::vector<std::string> Parser::parse(const std::string& text)
             auto parsed = parse(s);
             for(const auto& t : parsed)
             {
-//                if(t == "OK") continue;
-
                 returnStrings.push_back(t);
             }
         }
@@ -137,7 +135,6 @@ std::vector<std::string> Parser::parse(const std::string& text)
         paramList = copy.substr(parenthesisPairs.pairs[1].front, (parenthesisPairs.pairs[1].rear - parenthesisPairs.pairs[1].front + 1));
         expression = copy.substr(parenthesisPairs.pairs[2].front, (parenthesisPairs.pairs[2].rear - parenthesisPairs.pairs[2].front + 1));
 
-
         boost::replace_first(copy, " " + expression, "");
         boost::replace_first(copy, " " + paramList, "");
 
@@ -180,9 +177,11 @@ std::vector<std::string> Parser::parse(const std::string& text)
     else if(singlePair)
     {
         debug("Single atom object, evaluating and returning...");
-        std::string functionsEvaluated = evaluateUserFunctions(data);
-//        return { data, (evaluate(functionsEvaluated)).data };
-        return { (evaluate(functionsEvaluated)).data };
+        auto functionsEvaluated = evaluateUserFunctions(data);
+        if(functionsEvaluated != data)
+            return { functionsEvaluated };
+        else
+            return { (evaluate(functionsEvaluated)).data };
     }
 
     // Multiple pairs of parenthesis remaining, got to be a little smarter
@@ -205,18 +204,29 @@ std::vector<std::string> Parser::parse(const std::string& text)
             debug("Current substring is " + substring);
 
             auto functionsEvaluated = evaluateUserFunctions(substring);
-            auto evaluated = evaluate(functionsEvaluated);
-            if(evaluated.dataWasList)
-            {
-                debug("Substring is list! Moving onto next loop");
-                numberOfListOperands++;
-                continue;
-            }
 
-            debug("Evaluation returned " + evaluated.data);
-            boost::replace_all(data, substring, evaluated.data);
-            debug("Data is now " + data + ", calling parse...");
-            return parse(data);
+            if(functionsEvaluated != substring)
+            {
+                debug("Function evaluation returned " + functionsEvaluated);
+                boost::replace_all(data, substring, functionsEvaluated);
+                debug("Data is now " + data + ", calling parse...");
+                return parse(data);
+            }
+            else
+            {
+                auto evaluated = evaluate(functionsEvaluated);
+                if(evaluated.dataWasList)
+                {
+                    debug("Substring is list! Moving onto next loop");
+                    numberOfListOperands++;
+                    continue;
+                }
+
+                debug("Evaluation returned " + evaluated.data);
+                boost::replace_all(data, substring, evaluated.data);
+                debug("Data is now " + data + ", calling parse...");
+                return parse(data);
+            }
         }
 
         return { "" };
@@ -231,14 +241,12 @@ EvaluationReturn Parser::evaluate(const std::string& data)
     auto pair = getOutermostParenthesis(data);
     std::string cleaned = data.substr(pair.front, (pair.rear - pair.front + 1));
 
-    debug("cleaned data to " + cleaned);
-
     // Check that param is not list
-    if(List::isList(data, _userVariables, _userFunctions))
-    {
-        debug("Data was list! Returning " + cleaned);
-        return {.data = data, .dataWasList = true};
-    }
+//    if(List::isList(data, _userVariables, _userFunctions))
+//    {
+//        debug("Data was list! Returning " + cleaned);
+//        return {.data = data, .dataWasList = true};
+//    }
 
     // Split into components
     auto ops = OperatorOperandsUtil::getOperatorOperands(cleaned);
@@ -339,14 +347,16 @@ EvaluationReturn Parser::evaluate(const std::string& data)
         auto parameters = getConditionalParameterType(ops);
 
         auto exp = conditionalFunctions.at(ops.operation)(parameters)->str();
-        if(Number::isNumber(exp))
-            return {.data = Number(exp).str(), .dataWasList = false};
-        else if(List::isList(exp, _userVariables, _userFunctions))
-            return {.data = List(exp).str(), .dataWasList = false};
-        else if(Conditional::isConditional(exp))
-            return {.data = Conditional(exp).str(), .dataWasList = false};
-        else
-            return {.data = exp, .dataWasList = false};
+//        if(Number::isNumber(exp))
+//            return {.data = Number(exp).str(), .dataWasList = false};
+//        else if(List::isList(exp, _userVariables, _userFunctions))
+//            return {.data = List(exp).str(), .dataWasList = false};
+//        else if(Conditional::isConditional(exp))
+//            return {.data = Conditional(exp).str(), .dataWasList = false};
+//        else
+//            return {.data = exp, .dataWasList = false};
+        auto returnStrings = parse(exp);
+        return {.data = returnStrings[returnStrings.size() - 1], .dataWasList = false};
     }
 
     else if(printFunctions.find(ops.operation) != printFunctions.end())
@@ -398,8 +408,36 @@ EvaluationReturn Parser::evaluate(const std::string& data)
 
     else
     {
-        error(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
-        return {.data = "", .dataWasList = false};
+        auto locations = getAllParenthesisLocations(cleaned);
+        if(locations.pairs.size() < 2)
+        {
+            debug("No valid operations, trying atom parse before returning...");
+
+            if(cleaned[0] == '(')
+            {
+                boost::replace_first(cleaned, "(", "");
+                if(cleaned[cleaned.size() - 1] == ')')
+                {
+                    boost::replace_last(cleaned, ")", "");
+                }
+            }
+
+            if(Null::isNull(cleaned))
+                return {.data = Null(cleaned).str(), .dataWasList = true};
+            else if(Conditional::isConditional(cleaned))
+                return {.data = Conditional(cleaned).str(), .dataWasList = true};
+            else if(Number::isNumber(cleaned))
+                return {.data = Number(cleaned).str(), .dataWasList = true};
+            else if(List::isList(cleaned, _userVariables, _userFunctions))
+                return {.data = Number(cleaned).str(), .dataWasList = true};
+            else
+                return {.data = data, .dataWasList = true};
+        }
+        else
+        {
+            error(boost::str(boost::format("Invalid operation provided in input: %1%") % data));
+            return {.data = "", .dataWasList = false};
+        }
     }
 }
 
@@ -484,9 +522,19 @@ std::string Parser::evaluateUserFunctions(const std::string& expression)
 
     if(_userFunctions.find(ops.operation) != _userFunctions.end())
     {
+        debug("Found user-defined function with name " + ops.operation);
+
         // Call function and return result as string
         FunctionDefinition fun = _userFunctions.at(ops.operation);
         std::string exp = fun.expression;
+
+        if(fun.params.size() == 0)
+        {
+            debug("Evaluating function with no parameters!");
+//            return fun.expression;
+            auto stringReturns = parse(fun.expression);
+            return stringReturns[stringReturns.size() - 1];
+        }
 
         if(ops.operands.size() != fun.params.size())
         {
@@ -511,7 +559,9 @@ std::string Parser::evaluateUserFunctions(const std::string& expression)
             }
             debug("Expression after evaluation: " + exp);
 
-            return exp;
+//            return exp;
+            auto stringReturns = parse(exp);
+            return stringReturns[stringReturns.size() - 1];
         }
     }
     else

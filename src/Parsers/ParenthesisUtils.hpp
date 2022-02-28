@@ -79,7 +79,6 @@ namespace parsers
         std::vector<std::size_t> openings, closings;
         AllParenthesisLocations ret;
         std::string dataCopy = data;
-        std::cout << dataCopy << std::endl;
 
         // Get all relevant indices
         for(std::size_t i = 0; i < dataCopy.size(); i++)
@@ -103,20 +102,17 @@ namespace parsers
         }
 
         std::reverse(openings.begin(), openings.end());
-//        std::reverse(closings.begin(), closings.end());
-        for(const auto& it : openings) { std::cout << it << std::endl; }
-        std::cout << std::endl;
-        std::cout << std::endl;
-        for(const auto& it : closings) { std::cout << it << std::endl; }
-
-        std::cout << openings.size() << " " << closings.size() << std::endl;
+//        for(const auto& it : openings) { std::cout << it << std::endl; }
+//        std::cout << std::endl;
+//        std::cout << std::endl;
+//        for(const auto& it : closings) { std::cout << it << std::endl; }
+//        std::cout << openings.size() << " " << closings.size() << std::endl;
 
         size_t numberOfPairs = openings.size();
         for(std::size_t i = 0; i < numberOfPairs; i++)
         {
             ParenthesisLocations pair;
             pair.front = openings.at(i);
-//            pair.rear = dataCopy.find_first_of(')', pair.front);
             for(std::size_t j = 0; j < closings.size(); j++)
             {
                 if(closings.at(j) > openings.at(i))

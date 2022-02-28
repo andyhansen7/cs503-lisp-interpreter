@@ -128,7 +128,7 @@ namespace
     TEST(IfTrueTest, Success)
     {
         parsers::Parser p;
-        std::string arg = "(if T 1 2)";
+        std::string arg = "(if T (1) (2))";
         auto ret = p.parse(arg);
 
         EXPECT_EQ(ret.size(), 1);
@@ -138,7 +138,7 @@ namespace
     TEST(IfFalseTest, Success)
     {
         parsers::Parser p;
-        std::string arg = "(if () 1 2)";
+        std::string arg = "(if () (1) (2))";
         auto ret = p.parse(arg);
 
         EXPECT_EQ(ret.size(), 1);

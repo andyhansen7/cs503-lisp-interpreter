@@ -36,18 +36,24 @@ namespace parsers
             // Stop if empty list
             if(data.length() < 1 || data == " ")
             {
+                debug("Returning nothing for expression " + data);
                 return {.operation = "", .operands = {}};
             }
             else if(Null::isNull(data))
             {
+                debug("Returning nothing for null expression " + data);
                 return {.operation = "", .operands = {}};
             }
 
             // Remove initial and end parenthesis
-//            boost::replace_first(inputText, "(", "");
-//            boost::replace_last(inputText, ")", "");
             if(inputText[0] == '(')
-                inputText.erase(0,1); // HERE
+            {
+                boost::replace_first(inputText, "(", "");
+                if(inputText[inputText.size() - 1] == ')')
+                {
+                    boost::replace_last(inputText, ")", "");
+                }
+            }
 
             // Remove list elements
             auto locations = getAllParenthesisLocations(inputText);
@@ -116,8 +122,16 @@ namespace parsers
             // Grab the last bit
             if(inputText != " " && inputText.length() > 0)
             {
-                ops.operands.push_back(inputText);
-                debug("OperatorOperands found operand \'" + inputText + "\'");
+                if(!operationSet)
+                {
+                    ops.operation = inputText;
+                    debug("OperatorOperands found operation \'" + inputText + "\'");
+                }
+                else
+                {
+                    ops.operands.push_back(inputText);
+                    debug("OperatorOperands found operand \'" + inputText + "\'");
+                }
             }
 
             // Append lists
